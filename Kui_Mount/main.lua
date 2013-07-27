@@ -1,0 +1,223 @@
+--[[
+	Kui Mount
+	Kesava-Auchindoun
+]]
+local addon, ns = ...
+local select, strfind, strlower, tonumber, tinsert
+	= select, strfind, strlower, tonumber, tinsert
+local professions, i, x
+
+local swimZones = {
+	['Vashj\'ir'] = true,
+	['Abyssal Depths'] = true,
+	['Kelp\'thar Forest'] = true,
+	['Shimmering Expanse'] = true,
+	['Damplight Chamber'] = true
+}
+
+-- these mounts don't specific that they can fly in their tooltip
+local extraHybrid = {
+	[121837] = true, -- jade panther
+	[120043] = true, -- jeweled onyx panther
+	[121838] = true, -- ruby panther
+	[121836] = true, -- sapphire panther
+	[121839] = true, -- sunstone panther
+}
+
+ns.f = CreateFrame('Frame', KuiMountFrame)
+ns.f:SetScript('OnEvent', function(self, event, ...)
+	if event == 'ADDON_LOADED' then
+		if ... ~= addon then return end
+		
+		-- initialise saved variables
+		-- acount wide
+		if not KuiMountSaved then
+			KuiMountSaved = {}
+			KuiMountSaved.blacklist = {}
+			KuiMountSaved.whitelist = {}
+		end
+
+		if not KuiMountSaved.blacklist then
+			KuiMountSaved.blacklist = {}
+		end
+
+		if not KuiMountSaved.whitelist then
+			KuiMountSaved.whitelist = {}
+		end
+
+		if KuiMountSaved.useHybrid == nil then
+			KuiMountSaved.useHybrid = true
+		end
+
+		-- character specific
+		if not KuiMountCharacter then
+			KuiMountCharacter = {}
+		end
+
+		if not KuiMountCharacter.blacklist then
+			KuiMountCharacter.blacklist = {}
+		end
+
+		if not KuiMountCharacter.whitelist then
+			KuiMountCharacter.whitelist = {}
+		end
+	end
+end)
+
+ns.f:RegisterEvent('ADDON_LOADED')
+
+------------------------------------------------------------------- functions --
+
+ns.nummounts, ns.mountlist = 0, {}
+ns.GetMounts = function()
+	if GetNumCompanions('mount') ~= ns.nummounts then
+		-- repopulate the mount list
+		ns.nummounts = GetNumCompanions('mount')
+		ns.mountlist = {}
+		
+		local i
+		for i = 1, ns.nummounts do
+			local _, mountname, spellid = GetCompanionInfo('mount', i) 
+			ns.mountlist[strlower(mountname)] = { mountname, spellid }
+		end
+	end
+end
+
+local function MeetsProfessionRequirement(description)
+	-- detect profession requirements
+	-- even though IsUsableSpell returned true. siiiiigh
+	local usable = true
+	local pdesc = select(3, strfind(description, '(requires.-skill.-%.)'))
+	
+	if pdesc then
+		-- find the profession skill level required
+		local skill = tonumber(select(3, strfind(pdesc, '(%d+)')))
+		local prof
+		
+		-- and, more annoyingly, name
+		if strfind(pdesc, 'engineering') then
+			prof = 'engineering'
+		elseif strfind(pdesc, 'tailoring') then
+			prof = 'tailoring'
+		end
+		
+		if not professions then
+			professions = { GetProfessions() }
+			
+			for x = 1,2 do
+				if professions[x] then
+					local pname, _, pskill = GetProfessionInfo(professions[x])
+					professions[strlower(pname)] = pskill
+				end
+			end
+		end
+		
+		-- and finally test if we can actually use the mount
+		if not professions[prof] or professions[prof] < skill then
+			usable = false
+		end
+	end
+	
+	return usable
+end
+
+local function Mount()
+	-- Dismount ----------------------------------------------------------------
+	if UnitInVehicle('player') then 
+		VehicleExit()
+		return
+	end
+	if IsMounted('player') then
+		Dismount()
+		return
+	end
+
+	CancelShapeshiftForm()
+
+	if InCombatLockdown() then
+		UIErrorsFrame:AddMessage('You are in combat', 1,0,0)
+		return
+	end
+		
+	-- Collect usable mounts ---------------------------------------------------
+	ns.GetMounts()
+	if ns.nummounts <= 0 then
+		UIErrorsFrame:AddMessage('You don\'t have any mounts.', 1,0,0)
+		return
+	end
+	
+	local blacklist = KuiMountCharacter.blacklistHere and
+	          KuiMountCharacter.blacklist or KuiMountSaved.blacklist	
+	local whitelist = KuiMountCharacter.whitelistHere and
+		      KuiMountCharacter.whitelist or KuiMountSaved.whitelist	      
+	local useHybrid = KuiMountSaved.useHybrid
+	
+	local usable, usablewl = {}, {}
+	local IsAltKeyDown, IsControlKeyDown, IsShiftKeyDown, IsFlyableArea
+		= IsAltKeyDown(), IsControlKeyDown(), IsShiftKeyDown(), IsFlyableArea()
+
+	local useFlying, isSwimZone =
+		not IsControlKeyDown and IsFlyableArea,
+		IsSwimming() and swimZones[GetZoneText()]		
+
+	if isSwimZone and
+	   ns.mountlist['abyssal seahorse'] and
+	   not IsShiftKeyDown
+	then
+		-- use the seapony in vashj'ir
+		tinsert(usable, ns.mountlist['abyssal seahorse'][2])
+	else
+		professions = nil -- search professions once per call
+
+		-- find all usable mounts
+		local _, mount
+		for _, mount in pairs(ns.mountlist) do
+			local name, id = unpack(mount)
+			local desc = strlower(GetSpellDescription(id))
+
+			if (not blacklist[name] or IsAltKeyDown) and
+			   IsUsableSpell(id) and
+			   MeetsProfessionRequirement(desc)
+			then
+				-- detect hybrid/flying mounts
+				local hybrid, flying
+				hybrid = extraHybrid[id] or
+				         strfind(desc, 'mount changes') or
+						 strfind(desc, 'capabilities of this mount')
+				
+				if not hybrid then
+					flying = strfind(desc, 'flying')
+				end
+
+				if (useFlying and (flying or hybrid)) or
+					(not useFlying and (
+				     (useHybrid and not flying) or
+				     (not flying and not hybrid)
+				    ))
+				then
+					tinsert(usable, id)
+					--print('['..id..', '..(flying and 'fly' or '')..' '..(hybrid and 'hybrid' or '')..'] '..name)
+
+					if whitelist[name] then
+						tinsert(usablewl, id)
+					end
+				end
+			end
+		end
+	end
+
+	if #usablewl > 0 then
+		-- use mount from whitelist
+		usable = usablewl
+	end
+
+	-- Select usable mount -----------------------------------------------------
+	if #usable > 0 then
+		local name = GetSpellInfo(usable[math.random(1, #usable)])
+		CastSpellByName(name)
+	else
+		UIErrorsFrame:AddMessage('Couldn\'t find a usable mount.', 1,0,0)
+	end
+end
+
+ns.Mount = Mount

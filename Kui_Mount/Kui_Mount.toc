@@ -1,0 +1,9 @@
+## Interface: 50200
+## Author: Kesava
+## Title: |cff9900ffKui|r Mount
+## Notes: Mount randomly.
+## SavedVariables: KuiMountSaved
+## SavedVariablesPerCharacter: KuiMountCharacter
+
+main.lua
+options.lua
