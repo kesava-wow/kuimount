@@ -5,7 +5,7 @@ manual-changelog:
 enable-nolib-creation:
     no
 
-move-folder:
+move-folders:
 	Kui_Mount/Kui_Mount: Kui_Mount
 			
 ignore:
