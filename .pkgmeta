@@ -4,9 +4,6 @@ manual-changelog:
 
 enable-nolib-creation:
     no
-
-move-folders:
-	Kui_Mount/Kui_Mount: Kui_Mount
 			
 ignore:
     - .gitignore
