@@ -15,7 +15,7 @@ local swimZones = {
 	['Damplight Chamber'] = true
 }
 
--- these mounts don't specific that they can fly in their tooltip
+-- these mounts don't specify that they can fly in their tooltip
 local extraHybrid = {
 	[121837] = true, -- jade panther
 	[120043] = true, -- jeweled onyx panther
@@ -163,9 +163,13 @@ local function Mount()
 	if isSwimZone and
 	   ns.mountlist['abyssal seahorse'] and
 	   not IsShiftKeyDown
-	then
-		-- use the seapony in vashj'ir
+	then -- use the seapony in vashj'ir
 		tinsert(usable, ns.mountlist['abyssal seahorse'][2])
+	elseif not useFlying
+		   and IsShiftKeyDown
+		   and ns.mountlist['azure water strider']
+	then -- use the water strider
+		tinsert(usable, ns.mountlist['azure water strider'][2])
 	else
 		professions = nil -- search professions once per call
 

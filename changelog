@@ -1,3 +1,2 @@
-* fix the jewelcrafting panther mounts never being recognised as flying or
-hybrid mounts
-* bump toc to 50300
+* bump toc to 50400
+* add hold shift to use azure water strider when not using a flying mount, ctrl + shift to use it even when you can fly
