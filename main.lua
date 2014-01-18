@@ -33,16 +33,14 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 		-- acount wide
 		if not KuiMountSaved then
 			KuiMountSaved = {}
-			KuiMountSaved.blacklist = {}
-			KuiMountSaved.whitelist = {}
 		end
 
-		if not KuiMountSaved.blacklist then
-			KuiMountSaved.blacklist = {}
-		end
-
-		if not KuiMountSaved.whitelist then
-			KuiMountSaved.whitelist = {}
+		if not KuiMountSaved.Sets then
+			KuiMountSaved.Sets = {
+				['One'] = KuiMountSaved.whitelist or {},
+				['Two'] = KuiMountSaved.blacklist or {},
+				['Three'] = {}
+			}
 		end
 
 		if KuiMountSaved.useHybrid == nil then
@@ -54,12 +52,8 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 			KuiMountCharacter = {}
 		end
 
-		if not KuiMountCharacter.blacklist then
-			KuiMountCharacter.blacklist = {}
-		end
-
-		if not KuiMountCharacter.whitelist then
-			KuiMountCharacter.whitelist = {}
+		if not KuiMountCharacter.list then
+			KuiMountCharacter.list = KuiMountCharacter.whitelist or {}
 		end
 	end
 end)
@@ -146,10 +140,7 @@ local function Mount()
 		return
 	end
 	
-	local blacklist = KuiMountCharacter.blacklistHere and
-	          KuiMountCharacter.blacklist or KuiMountSaved.blacklist	
-	local whitelist = KuiMountCharacter.whitelistHere and
-		      KuiMountCharacter.whitelist or KuiMountSaved.whitelist	      
+	local whitelist = ns.GetActiveList()
 	local useHybrid = KuiMountSaved.useHybrid
 	
 	local usable, usablewl = {}, {}
@@ -179,8 +170,7 @@ local function Mount()
 			local name, id = unpack(mount)
 			local desc = strlower(GetSpellDescription(id))
 
-			if (not blacklist[name] or IsAltKeyDown) and
-			   IsUsableSpell(id) and
+			if IsUsableSpell(id) and
 			   MeetsProfessionRequirement(desc)
 			then
 				-- detect hybrid/flying mounts

@@ -5,8 +5,15 @@
 local addon,ns = ...
 local category = 'Kui Mount'
 
+local function GetActiveList()
+	return KuiMountCharacter.ActiveSet == 'Char' and
+		   KuiMountCharacter.list or
+		   KuiMountSaved.Sets[KuiMountCharacter.ActiveSet]
+end
+ns.GetActiveList = GetActiveList
+
 do
-	local blacklistBox, preferedBox, useHybridCheck, blacklistSpecificCheck, supressErrorsCheck, whitelistSpecificCheck
+	local preferedBox, useHybridCheck, supressErrorsCheck
 
 	--------------------------------------- Create interface options category --
 	local opt = CreateFrame("Frame", "KuiMountConfig", InterfaceOptionsFramePanelContainer)
@@ -14,6 +21,7 @@ do
 	opt.name = category
 
 	--------------------------------------------------------------- Functions --
+
 	-- helper for creating scrollable edit boxes
 	local function CreateEditBox(name, width, height)
 		local box = CreateFrame('EditBox', name, opt)
@@ -61,7 +69,6 @@ do
 
 			-- prevent losing changes if the checkbox is clicked before focus
 			-- is cleared from an editbox
-			blacklistBox:ClearFocus()
 			preferedBox:ClearFocus()
 
 			if self:GetChecked() then
@@ -84,71 +91,101 @@ do
 		return check
 	end
 
-	local function SetValues()
-		local blacklist = KuiMountCharacter.blacklistHere and
-	          KuiMountCharacter.blacklist or KuiMountSaved.blacklist
-		
-		local whitelist = KuiMountCharacter.whitelistHere and
-		      KuiMountCharacter.whitelist or KuiMountSaved.whitelist
+	local function ActivateSet(name)
+		if not _G['KuiMountSet'..name..'Button'] then return end
+		if name ~= 'Char' and not KuiMountSaved.Sets[name] then return end
+		if name == 'Char' and not KuiMountCharacter.list then return end
 
-		local text, name, _
-		for name, _ in pairs(blacklist) do
+		local buttons,_
+		for _,button in pairs({
+			'KuiMountSetCharButton',
+			'KuiMountSetThreeButton',
+			'KuiMountSetTwoButton',
+			'KuiMountSetOneButton',
+		}) do
+			_G[button]:Enable()
+		end
+
+		_G['KuiMountSet'..name..'Button']:Disable()
+		KuiMountCharacter.ActiveSet = name
+
+		-- load the active set list into the text area
+		local list = GetActiveList()
+		local text,name,_
+		for name,_ in pairs(list) do
 			text = (text and text..'\n'..name or name)
 		end
-		
-		blacklistBox:SetText(text or '')
 
-		text = nil
-		for name, _ in pairs(whitelist) do
-			text = (text and text..'\n'..name or name)
-		end
-		
 		preferedBox:SetText(text or '')
+	end
+
+	local function SetValues()
+		ActivateSet(KuiMountCharacter.ActiveSet or 'One')
 
 		useHybridCheck:SetChecked(KuiMountSaved.useHybrid)
 		supressErrorsCheck:SetChecked(KuiMountSaved.supressErrors)
-
-		blacklistSpecificCheck:SetChecked(KuiMountCharacter.blacklistHere)
-		whitelistSpecificCheck:SetChecked(KuiMountCharacter.whitelistHere)
 	end
 
 	------------------------------------------------- Create options elements --
 	-- Use hybrid mounts as ground mounts checkbox -----------------------------
-	useHybridCheck = CreateCheckBox('useHybrid', 'Use hybrid mounts as ground mounts.')
+	useHybridCheck = CreateCheckBox('useHybrid', 'Use hybrid mounts as ground mounts')
 	useHybridCheck:SetPoint('TOPLEFT', 16, -16)
 	
 	-- Supress spellbook errors checkbox ---------------------------------------
-	supressErrorsCheck = CreateCheckBox('supressErrors', 'Supress spellbook errors.')
+	supressErrorsCheck = CreateCheckBox('supressErrors', 'Supress spellbook errors')
 	supressErrorsCheck:SetPoint('TOPLEFT', 332, -16)
 
-	-- Blacklist ---------------------------------------------------------------
-	local blacklistTitle = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
-	blacklistTitle:SetText('Blacklist')
-	blacklistTitle:SetPoint('TOPLEFT', useHybridCheck, 'BOTTOMLEFT', 0, -14)
-
-	blacklistSpecificCheck = CreateCheckBox('blacklistHere', 'Character specific', false, SetValues)
-	blacklistSpecificCheck:SetPoint('LEFT', blacklistTitle, 'RIGHT', 5, 0)
-	
-	blacklistBox = CreateEditBox('KuiMountBlacklistBox', 250, 380)
-	blacklistBox.Scroll:SetPoint('TOPLEFT', blacklistTitle, 'BOTTOMLEFT', 0, -16)
-	
 	-- Prefered ----------------------------------------------------------------
 	local preferedTitle = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
 	preferedTitle:SetText('Whitelist')
-	preferedTitle:SetPoint('TOPLEFT', useHybridCheck, 'BOTTOMLEFT', 316, -14)
+	preferedTitle:SetPoint('TOPLEFT', useHybridCheck, 'BOTTOMLEFT', 10, -10)
 
-	whitelistSpecificCheck = CreateCheckBox('whitelistHere', 'Character specific', false, SetValues)
-	whitelistSpecificCheck:SetPoint('LEFT', preferedTitle, 'RIGHT', 5, 0)
-
-	preferedBox = CreateEditBox('KuiMountPreferedBox', 250, 380)
+	preferedBox = CreateEditBox('KuiMountPreferedBox', 550, 380)
 	preferedBox.Scroll:SetPoint('TOPLEFT', preferedTitle, 'BOTTOMLEFT', 0, -16)
+
+	-- set buttons
+	local SetChar = CreateFrame('Button', 'KuiMountSetCharButton', opt, 'UIPanelButtonTemplate')
+	SetChar:SetPoint('BOTTOMRIGHT', preferedBox, 'TOPRIGHT', 25, 13)
+	SetChar:SetText('Char')
+
+	local SetThree = CreateFrame('Button', 'KuiMountSetThreeButton', opt, 'UIPanelButtonTemplate')
+	SetThree:SetPoint('RIGHT', SetChar, 'LEFT')
+	SetThree:SetText('Three')
+
+	local SetTwo = CreateFrame('Button', 'KuiMountSetTwoButton', opt, 'UIPanelButtonTemplate')
+	SetTwo:SetPoint('RIGHT', SetThree, 'LEFT')
+	SetTwo:SetText('Two')
+
+	local SetOne = CreateFrame('Button', 'KuiMountSetOneButton', opt, 'UIPanelButtonTemplate')
+	SetOne:SetPoint('RIGHT', SetTwo, 'LEFT')
+	SetOne:SetText('One')
+
+	local SetsText = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+	SetsText:SetText('Stored sets')
+	SetsText:SetPoint('RIGHT', SetOne, 'LEFT', -5, 0)
+
+	local SetsTooltipFrame = CreateFrame('Frame', nil, opt)
+	SetsTooltipFrame:SetAllPoints(SetsText)
+	SetsTooltipFrame:EnableMouse(true)
+
+	SetsTooltipFrame:SetScript('OnEnter', function(self)
+		-- tooltip for sets
+		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
+		GameTooltip:SetWidth(200)
+		GameTooltip:AddLine('Stored sets')
+		GameTooltip:AddLine('Sets One, Two and Three are saved account-wide, but which set is currently active is saved per-character. The Char set is character specific.', 1, 1, 1, true)
+		GameTooltip:Show()
+	end)
+	SetsTooltipFrame:SetScript('OnLeave', function(self)
+		GameTooltip:Hide()
+	end)
 
 	-- Blacklist/whitelist help text -------------------------------------------
 	local blacklistHelp = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
-	blacklistHelp:SetText('Type the names of mounts in the blacklist or whitelist. Each mount must be on its own line. When you close the window the lists will be verified and entries may move around. Class or faction specific mounts will generate errors unless you are currently playing that class or faction - to supress these errors, check the "Supress spellbook errors" option.')
-	blacklistHelp:SetPoint('TOPLEFT', blacklistBox.Scroll, 'BOTTOMLEFT', 0, -10)
+	blacklistHelp:SetText('Type the names of mounts into the set list. Each mount must be on its own line. When you close the window the lists will be verified and entries may move around. Class or faction specific mounts will generate errors unless you are currently playing that class or faction - to supress these errors, check the "Supress spellbook errors" option.')
+	blacklistHelp:SetPoint('TOPLEFT', preferedBox.Scroll, 'BOTTOMLEFT', 0, -15)
 	blacklistHelp:SetHeight(80)
-	blacklistHelp:SetWidth(600)
+	blacklistHelp:SetWidth(550)
 	blacklistHelp:SetWordWrap(true)
 	blacklistHelp:SetJustifyH('LEFT')
 	blacklistHelp:SetJustifyV('TOP')
@@ -165,18 +202,12 @@ do
 	local function OnEditFocusLost(self)
 		ns.GetMounts()
 
-		local env
 		local text = { strsplit('\n', self:GetText()) }
 		local invalid = {}
 		local entries = {}
 
-		if self:GetName() == 'KuiMountBlacklistBox' then
-			env = KuiMountCharacter.blacklistHere and
-	              KuiMountCharacter.blacklist or KuiMountSaved.blacklist
-		else
-			env = KuiMountCharacter.whitelistHere and
-		          KuiMountCharacter.whitelist or KuiMountSaved.whitelist
-		end
+		-- get the active list
+		local env = GetActiveList()
 
 		local k,name,_
 		for k, name in ipairs(text) do
@@ -208,13 +239,20 @@ do
 		end
 	end
 
-	opt:SetScript('OnShow', OnOptionsShow)
+	local function OnSetButtonClicked(button)
+		preferedBox:ClearFocus()
+		ActivateSet(button:GetText())
+	end
 
-	blacklistBox:SetScript('OnEscapePressed', OnEscapePressed)
-	blacklistBox:SetScript('OnEditFocusLost', OnEditFocusLost)
+	opt:SetScript('OnShow', OnOptionsShow)
 	
 	preferedBox:SetScript('OnEscapePressed', OnEscapePressed)
 	preferedBox:SetScript('OnEditFocusLost', OnEditFocusLost)
+
+	SetChar:SetScript('OnClick', OnSetButtonClicked)
+	SetOne:SetScript('OnClick', OnSetButtonClicked)
+	SetTwo:SetScript('OnClick', OnSetButtonClicked)
+	SetThree:SetScript('OnClick', OnSetButtonClicked)
 
 	InterfaceOptions_AddCategory(opt)
 end
@@ -225,6 +263,7 @@ SLASH_KUIMOUNT2 = '/mount'
 
 function SlashCmdList.KUIMOUNT(msg)
 	if msg ~= '' then
+		InterfaceOptionsFrame_OpenToCategory(category)
 		InterfaceOptionsFrame_OpenToCategory(category)
 	else
 		ns.Mount()

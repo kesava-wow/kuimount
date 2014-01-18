@@ -1,2 +1,6 @@
 * bump toc to 50400
-* add hold shift to use azure water strider when not using a flying mount, ctrl + shift to use it even when you can fly
+* remove blacklist
+* split whitelist into three seperate sets which are all saved account-wide, plus the character specific set
+* "fix" options interface doesn't show the first time the slash command is used
+
+The old whitelist should be imported to set one and the blacklist should be imported to set two. The character specific whitelist will be imported to the chracter specific set.
