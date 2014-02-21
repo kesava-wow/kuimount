@@ -1,6 +1,8 @@
+For this update you may need to open and close the config interface with `/mount o` once in order to initiliase the new lists correctly.
+
+A blacklist no longer exists, but if you did use it previously, it should have been imported into set two.
+
 * bump toc to 50400
 * remove blacklist
 * split whitelist into three seperate sets which are all saved account-wide, plus the character specific set
 * "fix" options interface doesn't show the first time the slash command is used
-
-The old whitelist should be imported to set one and the blacklist should be imported to set two. The character specific whitelist will be imported to the chracter specific set.

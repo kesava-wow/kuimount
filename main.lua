@@ -43,6 +43,10 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 			}
 		end
 
+		if not KuiMountCharacter.ActiveSet then
+			KuiMountCharacter.ActiveSet = 'One'
+		end
+
 		if KuiMountSaved.useHybrid == nil then
 			KuiMountSaved.useHybrid = true
 		end
