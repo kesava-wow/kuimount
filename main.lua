@@ -119,6 +119,17 @@ local function MeetsProfessionRequirement(description)
 	return usable
 end
 
+local function MeetsCloudSerpentRequirement(name)
+	-- this is to workaround a bug where if you stand in water, IsUsableSpell
+	-- returns true with cloud serpents even if you don't have the relevant
+	-- skill. It works as normal when not standing in water.
+	if name:match(' Cloud Serpent$') then
+		return IsSpellKnown(130487)
+	else
+		return true
+	end
+end
+
 local function Mount()
 	-- Dismount ----------------------------------------------------------------
 	if UnitInVehicle('player') then 
@@ -175,7 +186,8 @@ local function Mount()
 			local desc = strlower(GetSpellDescription(id))
 
 			if IsUsableSpell(id) and
-			   MeetsProfessionRequirement(desc)
+			   MeetsProfessionRequirement(desc) and
+			   MeetsCloudSerpentRequirement(name)
 			then
 				-- detect hybrid/flying mounts
 				local hybrid, flying
@@ -219,3 +231,8 @@ local function Mount()
 end
 
 ns.Mount = Mount
+
+-- globals for key binding support
+BINDING_HEADER_KUIMOUNT_HEADER = 'Kui Mount'
+BINDING_NAME_KUIMOUNT_ACTION = 'Mount'
+KuiMountMount = Mount

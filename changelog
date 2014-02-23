@@ -1,8 +1,2 @@
-For this update you may need to open and close the config interface with `/mount o` once in order to initiliase the new lists correctly.
-
-A blacklist no longer exists, but if you did use it previously, it should have been imported into set two.
-
-* bump toc to 50400
-* remove blacklist
-* split whitelist into three seperate sets which are all saved account-wide, plus the character specific set
-* "fix" options interface doesn't show the first time the slash command is used
+* Added a keybind. It should be somewhere near the bottom of the default UI's keybind frame, under "Kui Mount".
+* work around an issue where the API returns usable for cloud serpents while standing in water even if you don't have the relevant skill
