@@ -9,10 +9,12 @@ local professions, i, x
 
 local swimZones = {
 	['Vashj\'ir'] = true,
+	['Ruins of Vashj\'ir'] = true,
 	['Abyssal Depths'] = true,
 	['Kelp\'thar Forest'] = true,
 	['Shimmering Expanse'] = true,
-	['Damplight Chamber'] = true
+	['Damplight Chamber'] = true,
+	['Beth\'mora Ridge'] = true,
 }
 
 -- these mounts don't specify that they can fly in their tooltip
@@ -43,10 +45,6 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 			}
 		end
 
-		if not KuiMountCharacter.ActiveSet then
-			KuiMountCharacter.ActiveSet = 'One'
-		end
-
 		if KuiMountSaved.useHybrid == nil then
 			KuiMountSaved.useHybrid = true
 		end
@@ -54,6 +52,10 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 		-- character specific
 		if not KuiMountCharacter then
 			KuiMountCharacter = {}
+		end
+
+		if not KuiMountCharacter.ActiveSet then
+			KuiMountCharacter.ActiveSet = 'One'
 		end
 
 		if not KuiMountCharacter.list then
@@ -140,8 +142,6 @@ local function Mount()
 		Dismount()
 		return
 	end
-
-	CancelShapeshiftForm()
 
 	if InCombatLockdown() then
 		UIErrorsFrame:AddMessage('You are in combat', 1,0,0)

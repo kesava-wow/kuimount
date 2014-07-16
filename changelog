@@ -1,2 +1,2 @@
-* Added a keybind. It should be somewhere near the bottom of the default UI's keybind frame, under "Kui Mount".
-* work around an issue where the API returns usable for cloud serpents while standing in water even if you don't have the relevant skill
+* Add "Ruins of Vashj'ir" and "Beth'mora Ridge" to list of locations in which to attempt to use the sea pony
+* Fix issue where the character specific whitelist is not correctly initialised
