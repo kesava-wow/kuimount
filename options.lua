@@ -3,7 +3,7 @@
 	Kesava-Auchindoun
 ]]
 local addon,ns = ...
-local category = 'Kui Mount'
+local category = 'Kui |cff9966ffMount|r'
 
 local function GetActiveList()
 	return KuiMountCharacter.ActiveSet == 'Char' and
@@ -235,7 +235,7 @@ do
 
 		if not KuiMountSaved.supressErrors and #invalid > 0 then
 			-- print invalid mounts
-			print('|cff9900ffKui_Mount:|r |cffff3333The following mounts were not found in your spellbook:|r '..table.concat(invalid, ', '))
+			print(category..': |cffff3333The following mounts were not found in your spellbook:|r '..table.concat(invalid, ', '))
 		end
 	end
 
@@ -262,11 +262,10 @@ SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
 
 function SlashCmdList.KUIMOUNT(msg)
-	if msg ~= '' then
-		InterfaceOptionsFrame_OpenToCategory(category)
-		InterfaceOptionsFrame_OpenToCategory(category)
-	else
-		ns.Mount(true)
-		print('|cff9900ffKui_Mount:|r Mounting with the slash command may cause errors relating to insecure code. You should use the keybind option.')
+	InterfaceOptionsFrame_OpenToCategory(category)
+	InterfaceOptionsFrame_OpenToCategory(category)
+
+	if msg == '' then
+		print(category..': |cffff3333You need to update your mount macro!|r Change the |cffaaaaaa/mount|r line to |cffaaaaaa/click KuiMountSecureButton')
 	end
 end
