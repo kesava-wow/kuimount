@@ -1,6 +1,6 @@
 ## Interface: 50400
 ## Author: Kesava
-## Title: |cff9900ffKui|r Mount
+## Title: Kui |cff9966ffMount|r
 ## Notes: Mount randomly.
 ## SavedVariables: KuiMountSaved
 ## SavedVariablesPerCharacter: KuiMountCharacter

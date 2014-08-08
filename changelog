@@ -1,2 +1,3 @@
-* Add "Ruins of Vashj'ir" and "Beth'mora Ridge" to list of locations in which to attempt to use the sea pony
-* Fix issue where the character specific whitelist is not correctly initialised
+* Running Wild (as well as any other non-companion spellbook mount, such as flight form) can now be used
+* Druid forms are now cancelled when mounting
+* The slash command is now obsolete. You should use the keybind option. I may be able to add a secure button which can be placed on action bars to replace the slash command, but that isn't in this release.

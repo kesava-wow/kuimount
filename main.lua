@@ -6,6 +6,7 @@ local addon, ns = ...
 local select, strfind, strlower, tonumber, tinsert
 	= select, strfind, strlower, tonumber, tinsert
 local professions, i, x
+local SecureButton
 
 local swimZones = {
 	['Vashj\'ir'] = true,
@@ -26,45 +27,21 @@ local extraHybrid = {
 	[121839] = true, -- sunstone panther
 }
 
+-- these mounts aren't companions
+-- (travel/ghost wolf won't actually work in combat without some more code
+-- modification but they're here for when it's ready)
+local spellIdMounts = {
+	783,   -- travel form
+	1066,  -- aquatic form
+	2645,  -- ghost wolf
+	33943, -- flight form
+	40120, -- swift ''
+	87840, -- running wild
+}
+
+local CLOUD_SERPENT_SKILL_ID = 130487
+
 ns.f = CreateFrame('Frame', KuiMountFrame)
-ns.f:SetScript('OnEvent', function(self, event, ...)
-	if event == 'ADDON_LOADED' then
-		if ... ~= addon then return end
-		
-		-- initialise saved variables
-		-- acount wide
-		if not KuiMountSaved then
-			KuiMountSaved = {}
-		end
-
-		if not KuiMountSaved.Sets then
-			KuiMountSaved.Sets = {
-				['One'] = KuiMountSaved.whitelist or {},
-				['Two'] = KuiMountSaved.blacklist or {},
-				['Three'] = {}
-			}
-		end
-
-		if KuiMountSaved.useHybrid == nil then
-			KuiMountSaved.useHybrid = true
-		end
-
-		-- character specific
-		if not KuiMountCharacter then
-			KuiMountCharacter = {}
-		end
-
-		if not KuiMountCharacter.ActiveSet then
-			KuiMountCharacter.ActiveSet = 'One'
-		end
-
-		if not KuiMountCharacter.list then
-			KuiMountCharacter.list = KuiMountCharacter.whitelist or {}
-		end
-	end
-end)
-
-ns.f:RegisterEvent('ADDON_LOADED')
 
 ------------------------------------------------------------------- functions --
 
@@ -79,6 +56,14 @@ ns.GetMounts = function()
 		for i = 1, ns.nummounts do
 			local _, mountname, spellid = GetCompanionInfo('mount', i) 
 			ns.mountlist[strlower(mountname)] = { mountname, spellid }
+		end
+	end
+
+	-- add non-companion mounts
+	for _,id in pairs(spellIdMounts) do
+		if IsSpellKnown(id) then
+			local name = GetSpellInfo(id)
+			ns.mountlist[strlower(name)] = { name, id }
 		end
 	end
 end
@@ -126,32 +111,17 @@ local function MeetsCloudSerpentRequirement(name)
 	-- returns true with cloud serpents even if you don't have the relevant
 	-- skill. It works as normal when not standing in water.
 	if name:match(' Cloud Serpent$') then
-		return IsSpellKnown(130487)
+		return IsSpellKnown(CLOUD_SERPENT_SKILL_ID)
 	else
 		return true
 	end
 end
 
-local function Mount()
-	-- Dismount ----------------------------------------------------------------
-	if UnitInVehicle('player') then 
-		VehicleExit()
-		return
-	end
-	if IsMounted('player') then
-		Dismount()
-		return
-	end
-
-	if InCombatLockdown() then
-		UIErrorsFrame:AddMessage('You are in combat', 1,0,0)
-		return
-	end
-		
+local function Mount(legacy)
 	-- Collect usable mounts ---------------------------------------------------
 	ns.GetMounts()
 	if ns.nummounts <= 0 then
-		UIErrorsFrame:AddMessage('You don\'t have any mounts.', 1,0,0)
+		UIErrorsFrame:AddMessage('You don\'t have any mounts', 1,0,0)
 		return
 	end
 	
@@ -196,7 +166,7 @@ local function Mount()
 						 strfind(desc, 'capabilities of this mount')
 				
 				if not hybrid then
-					flying = strfind(desc, 'flying')
+					flying = strfind(desc, 'flying') or strfind(desc, 'flight')
 				end
 
 				if (useFlying and (flying or hybrid)) or
@@ -224,15 +194,83 @@ local function Mount()
 	-- Select usable mount -----------------------------------------------------
 	if #usable > 0 then
 		local name = GetSpellInfo(usable[math.random(1, #usable)])
-		CastSpellByName(name)
+		if legacy then
+			CastSpellByName(name)
+		else
+			SecureButton:SetAttribute('macrotext', '/cast '..name)
+		end
 	else
-		UIErrorsFrame:AddMessage('Couldn\'t find a usable mount.', 1,0,0)
+		UIErrorsFrame:AddMessage('Couldn\'t find a usable mount', 1,0,0)
 	end
 end
+
+-- secure button handlers ------------------------------------------------------
+local function ButtonPreClick(self)
+	if UnitInVehicle('player') then 
+		VehicleExit()
+		return
+	end
+	if IsMounted('player') then
+		Dismount()
+		return
+	end
+
+	if InCombatLockdown() then
+		-- TODO a second button could handle combat actions i.e. ghost wolf
+		return
+	end
+
+	-- blank the macro so that we don't get 2 uierrors if no mount is usable
+	SecureButton:SetAttribute('macrotext', '')
+	Mount()
+end
+
+-- events ----------------------------------------------------------------------
+ns.f:SetScript('OnEvent', function(self, event, ...)
+	if event == 'ADDON_LOADED' then
+		if ... ~= addon then return end
+
+		SecureButton = CreateFrame("Button", 'KuiMountSecureButton', UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
+		SecureButton:SetAttribute('type','macro')
+		SecureButton:SetScript('PreClick', ButtonPreClick)
+
+		-- initialise saved variables
+		-- acount wide
+		if not KuiMountSaved then
+			KuiMountSaved = {}
+		end
+
+		if not KuiMountSaved.Sets then
+			KuiMountSaved.Sets = {
+				['One'] = KuiMountSaved.whitelist or {},
+				['Two'] = KuiMountSaved.blacklist or {},
+				['Three'] = {}
+			}
+		end
+
+		if KuiMountSaved.useHybrid == nil then
+			KuiMountSaved.useHybrid = true
+		end
+
+		-- character specific
+		if not KuiMountCharacter then
+			KuiMountCharacter = {}
+		end
+
+		if not KuiMountCharacter.ActiveSet then
+			KuiMountCharacter.ActiveSet = 'One'
+		end
+
+		if not KuiMountCharacter.list then
+			KuiMountCharacter.list = KuiMountCharacter.whitelist or {}
+		end
+	end
+end)
+ns.f:RegisterEvent('ADDON_LOADED')
 
 ns.Mount = Mount
 
 -- globals for key binding support
 BINDING_HEADER_KUIMOUNT_HEADER = 'Kui Mount'
-BINDING_NAME_KUIMOUNT_ACTION = 'Mount'
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount")
 KuiMountMount = Mount

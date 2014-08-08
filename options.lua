@@ -266,6 +266,7 @@ function SlashCmdList.KUIMOUNT(msg)
 		InterfaceOptionsFrame_OpenToCategory(category)
 		InterfaceOptionsFrame_OpenToCategory(category)
 	else
-		ns.Mount()
+		ns.Mount(true)
+		print('|cff9900ffKui_Mount:|r Mounting with the slash command may cause errors relating to insecure code. You should use the keybind option.')
 	end
 end

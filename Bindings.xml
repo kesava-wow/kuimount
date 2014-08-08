@@ -1,5 +1,4 @@
 <Bindings>
-	<Binding header="KUIMOUNT_HEADER" name="KUIMOUNT_ACTION">
-		KuiMountMount()
-	</Binding>
+    <Binding header="KUIMOUNT_HEADER" name="CLICK KuiMountSecureButton:LeftButton">
+    </Binding>
 </Bindings>
