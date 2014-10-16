@@ -34,31 +34,29 @@ local spellIdMounts = {
 	783,   -- travel form
 	1066,  -- aquatic form
 	2645,  -- ghost wolf
-	33943, -- flight form
-	40120, -- swift ''
 	87840, -- running wild
+	165962, -- flight form
 }
-
-local CLOUD_SERPENT_SKILL_ID = 130487
 
 ns.f = CreateFrame('Frame', KuiMountFrame)
 
 ------------------------------------------------------------------- functions --
-
-ns.nummounts, ns.mountlist = 0, {}
+ns.mountlist,ns.nummounts = {},0
 ns.GetMounts = function()
-	if GetNumCompanions('mount') ~= ns.nummounts then
-		-- repopulate the mount list
-		ns.nummounts = GetNumCompanions('mount')
-		ns.mountlist = {}
-		
-		local i
-		for i = 1, ns.nummounts do
-			local _, mountname, spellid = GetCompanionInfo('mount', i) 
+	ns.mountlist = {}
+	ns.nummounts = 0
+
+	local nummounts = C_MountJournal.GetNumMounts()
+	for i = 1,nummounts do
+		local mountname,spellid,_,_,usable,_,_,_,_,_,collected =
+			C_MountJournal.GetMountInfo(i)
+
+		if usable and collected then
 			ns.mountlist[strlower(mountname)] = { mountname, spellid }
+			ns.nummounts = ns.nummounts + 1
 		end
 	end
-
+	
 	-- add non-companion mounts
 	for _,id in pairs(spellIdMounts) do
 		if IsSpellKnown(id) then
@@ -68,58 +66,7 @@ ns.GetMounts = function()
 	end
 end
 
-local function MeetsProfessionRequirement(description)
-	-- detect profession requirements
-	-- even though IsUsableSpell returned true. siiiiigh
-	local usable = true
-	local pdesc = select(3, strfind(description, '(requires.-skill.-%.)'))
-	
-	if pdesc then
-		-- find the profession skill level required
-		local skill = tonumber(select(3, strfind(pdesc, '(%d+)')))
-		local prof
-		
-		-- and, more annoyingly, name
-		if strfind(pdesc, 'engineering') then
-			prof = 'engineering'
-		elseif strfind(pdesc, 'tailoring') then
-			prof = 'tailoring'
-		end
-		
-		if not professions then
-			professions = { GetProfessions() }
-			
-			for x = 1,2 do
-				if professions[x] then
-					local pname, _, pskill = GetProfessionInfo(professions[x])
-					professions[strlower(pname)] = pskill
-				end
-			end
-		end
-		
-		-- and finally test if we can actually use the mount
-		if not professions[prof] or professions[prof] < skill then
-			usable = false
-		end
-	end
-	
-	return usable
-end
-
-local function MeetsCloudSerpentRequirement(name)
-	-- this is to workaround a bug where if you stand in water, IsUsableSpell
-	-- returns true with cloud serpents even if you don't have the relevant
-	-- skill. It works as normal when not standing in water.
-	if name:match(' Cloud Serpent$') then
-		return IsSpellKnown(CLOUD_SERPENT_SKILL_ID)
-	else
-		return true
-	end
-end
-
 local function Mount(legacy)
-	-- Collect usable mounts ---------------------------------------------------
-	ns.GetMounts()
 	if ns.nummounts <= 0 then
 		UIErrorsFrame:AddMessage('You don\'t have any mounts', 1,0,0)
 		return
@@ -127,7 +74,7 @@ local function Mount(legacy)
 	
 	local whitelist = ns.GetActiveList()
 	local useHybrid = KuiMountSaved.useHybrid
-	
+
 	local usable, usablewl = {}, {}
 	local IsAltKeyDown, IsControlKeyDown, IsShiftKeyDown, IsFlyableArea
 		= IsAltKeyDown(), IsControlKeyDown(), IsShiftKeyDown(), IsFlyableArea()
@@ -137,50 +84,43 @@ local function Mount(legacy)
 		IsSwimming() and swimZones[GetZoneText()]		
 
 	if isSwimZone and
-	   ns.mountlist['abyssal seahorse'] and
+	   ns.mountlist['vashj\'ir seahorse'] and
 	   not IsShiftKeyDown
 	then -- use the seapony in vashj'ir
-		tinsert(usable, ns.mountlist['abyssal seahorse'][2])
+		tinsert(usable, ns.mountlist['vashj\'ir seahorse'][2])
 	elseif not useFlying
 		   and IsShiftKeyDown
 		   and ns.mountlist['azure water strider']
 	then -- use the water strider
 		tinsert(usable, ns.mountlist['azure water strider'][2])
 	else
-		professions = nil -- search professions once per call
-
 		-- find all usable mounts
 		local _, mount
 		for _, mount in pairs(ns.mountlist) do
 			local name, id = unpack(mount)
 			local desc = strlower(GetSpellDescription(id))
 
-			if IsUsableSpell(id) and
-			   MeetsProfessionRequirement(desc) and
-			   MeetsCloudSerpentRequirement(name)
+			-- detect hybrid/flying mounts
+			local hybrid, flying
+			hybrid = extraHybrid[id] or
+			         strfind(desc, 'mount changes') or
+					 strfind(desc, 'capabilities of this mount')
+			
+			if not hybrid then
+				flying = strfind(desc, 'flying') or strfind(desc, 'flight')
+			end
+
+			if (useFlying and (flying or hybrid)) or
+				(not useFlying and (
+			     (useHybrid and not flying) or
+			     (not flying and not hybrid)
+			    ))
 			then
-				-- detect hybrid/flying mounts
-				local hybrid, flying
-				hybrid = extraHybrid[id] or
-				         strfind(desc, 'mount changes') or
-						 strfind(desc, 'capabilities of this mount')
-				
-				if not hybrid then
-					flying = strfind(desc, 'flying') or strfind(desc, 'flight')
-				end
+				tinsert(usable, id)
+				--print('['..id..', '..(flying and 'fly' or '')..' '..(hybrid and 'hybrid' or '')..'] '..name)
 
-				if (useFlying and (flying or hybrid)) or
-					(not useFlying and (
-				     (useHybrid and not flying) or
-				     (not flying and not hybrid)
-				    ))
-				then
-					tinsert(usable, id)
-					--print('['..id..', '..(flying and 'fly' or '')..' '..(hybrid and 'hybrid' or '')..'] '..name)
-
-					if whitelist[name] then
-						tinsert(usablewl, id)
-					end
+				if whitelist[name] then
+					tinsert(usablewl, id)
 				end
 			end
 		end
@@ -216,7 +156,8 @@ local function ButtonPreClick(self)
 	end
 
 	if InCombatLockdown() then
-		-- TODO a second button could handle combat actions i.e. ghost wolf
+		-- TODO the combat lockdown event -might- -maybe- let me switch the
+		-- actions to combat mode without firing errors
 		return
 	end
 
@@ -227,7 +168,10 @@ end
 
 -- events ----------------------------------------------------------------------
 ns.f:SetScript('OnEvent', function(self, event, ...)
-	if event == 'ADDON_LOADED' then
+	if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
+		-- update mount list upon learning new mounts
+		ns.GetMounts()
+	elseif event == 'ADDON_LOADED' then
 		if ... ~= addon then return end
 
 		SecureButton = CreateFrame("Button", 'KuiMountSecureButton', UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
@@ -267,6 +211,8 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 	end
 end)
 ns.f:RegisterEvent('ADDON_LOADED')
+ns.f:RegisterEvent('COMPANION_LEARNED')
+ns.f:RegisterEvent('PLAYER_ENTERING_WORLD')
 
 ns.Mount = Mount
 

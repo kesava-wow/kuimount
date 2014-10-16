@@ -1,3 +1,2 @@
-* Running Wild (as well as other non-companion spellbook mounts, such as flight form) can now be used
-* Druid forms are now cancelled when mounting
-* The slash command "/mount" is now obsolete. It needs to be changed to "/click KuiMountSecureButton" (or use the keybind, of course).
+* fix no mounts are detected in 6.0.2
+* bump TOC
