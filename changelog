@@ -1,2 +1,1 @@
-* fix no mounts are detected in 6.0.2
-* bump TOC
+* fix no mounts are detected after zoning out of an area where no mounts are usable

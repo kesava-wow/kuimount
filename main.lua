@@ -46,13 +46,12 @@ ns.GetMounts = function()
 	ns.mountlist = {}
 	ns.nummounts = 0
 
-	local nummounts = C_MountJournal.GetNumMounts()
-	for i = 1,nummounts do
-		local mountname,spellid,_,_,usable,_,_,_,_,_,collected =
+	for i = 1,C_MountJournal.GetNumMounts() do
+		local mountname,_,_,_,_,_,_,_,_,_,collected =
 			C_MountJournal.GetMountInfo(i)
 
-		if usable and collected then
-			ns.mountlist[strlower(mountname)] = { mountname, spellid }
+		if collected then
+			ns.mountlist[strlower(mountname)] = i
 			ns.nummounts = ns.nummounts + 1
 		end
 	end
@@ -87,40 +86,55 @@ local function Mount(legacy)
 	   ns.mountlist['vashj\'ir seahorse'] and
 	   not IsShiftKeyDown
 	then -- use the seapony in vashj'ir
-		tinsert(usable, ns.mountlist['vashj\'ir seahorse'][2])
+		local spellid = select(2,C_MountJournal.GetMountInfo(ns.mountlist['vashj\'ir seahorse']))
+		tinsert(usable, spellid)
 	elseif not useFlying
 		   and IsShiftKeyDown
 		   and ns.mountlist['azure water strider']
 	then -- use the water strider
-		tinsert(usable, ns.mountlist['azure water strider'][2])
+		local spellid = select(2,C_MountJournal.GetMountInfo(ns.mountlist['azure water strider']))
+		tinsert(usable, spellid)
 	else
 		-- find all usable mounts
-		local _, mount
-		for _, mount in pairs(ns.mountlist) do
-			local name, id = unpack(mount)
-			local desc = strlower(GetSpellDescription(id))
+		local _, id
+		for _, id in pairs(ns.mountlist) do
+			local name,spellid,is_usable
 
-			-- detect hybrid/flying mounts
-			local hybrid, flying
-			hybrid = extraHybrid[id] or
-			         strfind(desc, 'mount changes') or
-					 strfind(desc, 'capabilities of this mount')
-			
-			if not hybrid then
-				flying = strfind(desc, 'flying') or strfind(desc, 'flight')
+			if type(id) == 'table' then
+				-- parse non-companion mounts
+				name,spellid = unpack(id)
+				is_usable = IsUsableSpell(spellid)
+			else
+				name,spellid,_,_,is_usable,_,_,_,_,_,_ =
+					C_MountJournal.GetMountInfo(id)
+				is_usable = is_usable and IsUsableSpell(spellid)
 			end
 
-			if (useFlying and (flying or hybrid)) or
-				(not useFlying and (
-			     (useHybrid and not flying) or
-			     (not flying and not hybrid)
-			    ))
-			then
-				tinsert(usable, id)
-				--print('['..id..', '..(flying and 'fly' or '')..' '..(hybrid and 'hybrid' or '')..'] '..name)
+			if is_usable then
+				local desc = strlower(GetSpellDescription(spellid))
 
-				if whitelist[name] then
-					tinsert(usablewl, id)
+				-- detect hybrid/flying mounts
+				local hybrid, flying
+				hybrid = extraHybrid[spellid] or
+				         strfind(desc, 'mount changes') or
+						 strfind(desc, 'capabilities of this')
+				
+				if not hybrid then
+					flying = strfind(desc, 'flying') or strfind(desc, 'flight')
+				end
+
+				if (useFlying and (flying or hybrid)) or
+					(not useFlying and (
+				     (useHybrid and not flying) or
+				     (not flying and not hybrid)
+				    ))
+				then
+					tinsert(usable, spellid)
+					--print('['..id..', '..(flying and 'fly' or '')..' '..(hybrid and 'hybrid' or '')..'] '..name)
+
+					if whitelist[name] then
+						tinsert(usablewl, spellid)
+					end
 				end
 			end
 		end
@@ -169,7 +183,7 @@ end
 -- events ----------------------------------------------------------------------
 ns.f:SetScript('OnEvent', function(self, event, ...)
 	if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
-		-- update mount list upon learning new mounts
+		-- update mount list upon learning new mounts or zoning
 		ns.GetMounts()
 	elseif event == 'ADDON_LOADED' then
 		if ... ~= addon then return end
