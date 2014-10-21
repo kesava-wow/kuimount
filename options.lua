@@ -213,14 +213,24 @@ do
 		for k, name in ipairs(text) do
 			if name ~= '' then
 				local rname
-				if ns.mountlist[strlower(name)] then
-					rname = ns.mountlist[strlower(name)][1]
+				local mount_id = ns.mountlist[strlower(name)]
+
+				if mount_id then
+					-- the player does actually have this mount
+					if type(mount_id) == 'table' then
+						-- its a spell mount, rather than a companion
+						rname = mount_id[1]
+					else
+						rname = C_MountJournal.GetMountInfo(mount_id)
+					end
 				end
 				
+				-- if the mount can't be found, just store it verbatim
 				entries[rname or name] = true
 				env[rname or name] = true
 
 				if not rname then
+					-- (and warn the player about it)
 					tinsert(invalid, name)
 				end
 			end

@@ -1,1 +1,1 @@
-* fix no mounts are detected after zoning out of an area where no mounts are usable
+* fix issue where it was impossible to edit the character specific list
