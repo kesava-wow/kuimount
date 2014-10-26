@@ -20,6 +20,7 @@ local swimZones = {
 
 -- these mounts don't specify that they can fly in their tooltip
 local extraHybrid = {
+	[783] = true, -- travel form, post 6.0
 	[121837] = true, -- jade panther
 	[120043] = true, -- jeweled onyx panther
 	[121838] = true, -- ruby panther
