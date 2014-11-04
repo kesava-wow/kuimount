@@ -81,7 +81,7 @@ local function Mount(legacy)
 
 	local useFlying, isSwimZone =
 		not IsControlKeyDown and IsFlyableArea,
-		IsSwimming() and swimZones[GetZoneText()]		
+		IsSwimming() and swimZones[GetZoneText()]
 
 	if isSwimZone and
 	   ns.mountlist['vashj\'ir seahorse'] and
@@ -100,38 +100,35 @@ local function Mount(legacy)
 		local _, id
 		for _, id in pairs(ns.mountlist) do
 			local name,spellid,is_usable
+			local flying
 
 			if type(id) == 'table' then
 				-- parse non-companion mounts
 				name,spellid = unpack(id)
 				is_usable = IsUsableSpell(spellid)
+				local desc = GetSpellDescription(spellid)
+
+				if strfind(desc, 'flying') or strfind(desc, 'flight') then
+					-- flying or hybrid
+					flying = true
+				end
 			else
 				name,spellid,_,_,is_usable,_,_,_,_,_,_ =
 					C_MountJournal.GetMountInfo(id)
 				is_usable = is_usable and IsUsableSpell(spellid)
+
+				local mounttype = select(5,C_MountJournal.GetMountInfoExtra(id))
+				if mounttype == 248 or mounttype == 247 then
+					flying = true
+				end
 			end
 
 			if is_usable then
-				local desc = strlower(GetSpellDescription(spellid))
-
-				-- detect hybrid/flying mounts
-				local hybrid, flying
-				hybrid = extraHybrid[spellid] or
-				         strfind(desc, 'mount changes') or
-						 strfind(desc, 'capabilities of this')
-				
-				if not hybrid then
-					flying = strfind(desc, 'flying') or strfind(desc, 'flight')
-				end
-
-				if (useFlying and (flying or hybrid)) or
-					(not useFlying and (
-				     (useHybrid and not flying) or
-				     (not flying and not hybrid)
-				    ))
+				if  (useFlying and flying) or
+				    (not useFlying and (useHybrid or not flying))
 				then
 					tinsert(usable, spellid)
-					--print('['..id..', '..(flying and 'fly' or '')..' '..(hybrid and 'hybrid' or '')..'] '..name)
+					--print('['..id..', '..(flying and 'fly' or '')..' '..name)
 
 					if whitelist[name] then
 						tinsert(usablewl, spellid)
