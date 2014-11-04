@@ -18,14 +18,9 @@ local swimZones = {
 	['Beth\'mora Ridge'] = true,
 }
 
--- these mounts don't specify that they can fly in their tooltip
+-- spell id mounts which don't specify they can fly in their tooltip
 local extraHybrid = {
 	[783] = true, -- travel form, post 6.0
-	[121837] = true, -- jade panther
-	[120043] = true, -- jeweled onyx panther
-	[121838] = true, -- ruby panther
-	[121836] = true, -- sapphire panther
-	[121839] = true, -- sunstone panther
 }
 
 -- these mounts aren't companions
@@ -110,6 +105,11 @@ local function Mount(legacy)
 
 				if strfind(desc, 'flying') or strfind(desc, 'flight') then
 					-- flying or hybrid
+					flying = true
+				end
+
+				if extraHybrid[spellid] then
+					-- override capabilities detected by description
 					flying = true
 				end
 			else
