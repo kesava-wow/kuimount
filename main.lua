@@ -8,6 +8,8 @@ local select, strfind, strlower, tonumber, tinsert
 local professions, i, x
 local SecureButton
 
+local CONTINENT_ID
+
 local swimZones = {
 	['Vashj\'ir'] = true,
 	['Ruins of Vashj\'ir'] = true,
@@ -69,23 +71,22 @@ local function Mount(legacy)
 	
 	local whitelist = ns.GetActiveList()
 	local useHybrid = KuiMountSaved.useHybrid
-
 	local usable, usablewl = {}, {}
-	local IsAltKeyDown, IsControlKeyDown, IsShiftKeyDown, IsFlyableArea
-		= IsAltKeyDown(), IsControlKeyDown(), IsShiftKeyDown(), IsFlyableArea()
 
+	-- CONTINENT_ID is a workaround for Draenor being flagged as flyable
 	local useFlying, isSwimZone =
-		not IsControlKeyDown and IsFlyableArea,
+		(not IsControlKeyDown() and IsFlyableArea()) and
+		(not CONTINENT_ID or CONTINENT_ID ~= 7),
 		IsSwimming() and swimZones[GetZoneText()]
 
 	if isSwimZone and
 	   ns.mountlist['vashj\'ir seahorse'] and
-	   not IsShiftKeyDown
+	   not IsShiftKeyDown()
 	then -- use the seapony in vashj'ir
 		local spellid = select(2,C_MountJournal.GetMountInfo(ns.mountlist['vashj\'ir seahorse']))
 		tinsert(usable, spellid)
 	elseif not useFlying
-		   and IsShiftKeyDown
+		   and IsShiftKeyDown()
 		   and ns.mountlist['azure water strider']
 	then -- use the water strider
 		local spellid = select(2,C_MountJournal.GetMountInfo(ns.mountlist['azure water strider']))
@@ -183,6 +184,10 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 	if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
 		-- update mount list upon learning new mounts or zoning
 		ns.GetMounts()
+
+		-- get continent to check if we're in draenor
+		SetMapToCurrentZone()
+		CONTINENT_ID = GetCurrentMapContinent()
 	elseif event == 'ADDON_LOADED' then
 		if ... ~= addon then return end
 
