@@ -28,7 +28,9 @@ local extraHybrid = {
 -- these mounts aren't companions
 -- (travel/ghost wolf won't actually work in combat without some more code
 -- modification but they're here for when it's ready)
+-- when indoors, spells which can be used indoors will be fallen back on
 local spellIdMounts = {
+	768,   -- cat form
 	783,   -- travel form
 	1066,  -- aquatic form
 	2645,  -- ghost wolf
@@ -76,7 +78,8 @@ local function Mount(legacy)
 	-- CONTINENT_ID is a workaround for Draenor being flagged as flyable
 	local useFlying, isSwimZone =
 		(not IsControlKeyDown() and IsFlyableArea()) and
-		(not CONTINENT_ID or CONTINENT_ID ~= 7),
+		(not CONTINENT_ID or CONTINENT_ID ~= 7) and
+		GetRealZoneText() ~= "Tanaan Jungle",
 		IsSwimming() and swimZones[GetZoneText()]
 
 	if isSwimZone and
