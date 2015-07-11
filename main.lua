@@ -8,8 +8,6 @@ local select, strfind, strlower, tonumber, tinsert
 local professions, i, x
 local SecureButton
 
-local CONTINENT_ID
-
 local swimZones = {
     ['Vashj\'ir'] = true,
     ['Ruins of Vashj\'ir'] = true,
@@ -75,11 +73,8 @@ local function Mount(legacy)
     local useHybrid = KuiMountSaved.useHybrid
     local usable, usablewl = {}, {}
 
-    -- CONTINENT_ID is a workaround for Draenor being flagged as flyable
     local useFlying, isSwimZone =
         (not IsControlKeyDown() and IsFlyableArea()) and
-        (not CONTINENT_ID or CONTINENT_ID ~= 7) and
-        GetRealZoneText() ~= "Tanaan Jungle",
         IsSwimming() and swimZones[GetZoneText()]
 
     if isSwimZone and
@@ -187,10 +182,6 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
         -- update mount list upon learning new mounts or zoning
         ns.GetMounts()
-
-        -- get continent to check if we're in draenor
-        SetMapToCurrentZone()
-        CONTINENT_ID = GetCurrentMapContinent()
     elseif event == 'ADDON_LOADED' then
         if ... ~= addon then return end
 
