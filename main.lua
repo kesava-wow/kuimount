@@ -73,9 +73,8 @@ local function Mount(legacy)
     local useHybrid = KuiMountSaved.useHybrid
     local usable, usablewl = {}, {}
 
-    local useFlying, isSwimZone =
-        (not IsControlKeyDown() and IsFlyableArea()) and
-        IsSwimming() and swimZones[GetZoneText()]
+    local useFlying = not IsControlKeyDown() and IsFlyableArea()
+    local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
 
     if isSwimZone and
        ns.mountlist['vashj\'ir seahorse'] and
