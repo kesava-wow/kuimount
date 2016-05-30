@@ -221,7 +221,7 @@ do
                         -- its a spell mount, rather than a companion
                         rname = mount_id[1]
                     else
-                        rname = C_MountJournal.GetMountInfo(mount_id)
+                        rname = C_MountJournal.GetMountInfoByID(ns.MOUNT_IDS[mount_id])
                     end
                 end
 

@@ -8,6 +8,9 @@ local select, strfind, strlower, tonumber, tinsert
 local professions, i, x
 local SecureButton
 
+local CONTINENT_ID
+local MOUNT_IDS
+
 local swimZones = {
     ['Vashj\'ir'] = true,
     ['Ruins of Vashj\'ir'] = true,
@@ -46,7 +49,7 @@ ns.GetMounts = function()
 
     for i = 1,C_MountJournal.GetNumMounts() do
         local mountname,_,_,_,_,_,_,_,_,_,collected =
-            C_MountJournal.GetMountInfo(i)
+            C_MountJournal.GetMountInfoByID(MOUNT_IDS[i])
 
         if collected then
             ns.mountlist[strlower(mountname)] = i
@@ -73,20 +76,22 @@ local function Mount(legacy)
     local useHybrid = KuiMountSaved.useHybrid
     local usable, usablewl = {}, {}
 
-    local useFlying = not IsControlKeyDown() and IsFlyableArea()
+    local useFlying = (not IsControlKeyDown() and IsFlyableArea()) and
+                      (not CONTINENT_ID or CONTINENT_ID ~= 8)
+
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
 
     if isSwimZone and
        ns.mountlist['vashj\'ir seahorse'] and
        not IsShiftKeyDown()
     then -- use the seapony in vashj'ir
-        local spellid = select(2,C_MountJournal.GetMountInfo(ns.mountlist['vashj\'ir seahorse']))
+        local spellid = select(2,C_MountJournal.GetMountInfoByID(MOUNT_IDS[ns.mountlist['vashj\'ir seahorse']]))
         tinsert(usable, spellid)
     elseif not useFlying
            and IsShiftKeyDown()
            and ns.mountlist['azure water strider']
     then -- use the water strider
-        local spellid = select(2,C_MountJournal.GetMountInfo(ns.mountlist['azure water strider']))
+        local spellid = select(2,C_MountJournal.GetMountInfoByID(MOUNT_IDS[ns.mountlist['azure water strider']]))
         tinsert(usable, spellid)
     else
         -- find all usable mounts
@@ -112,10 +117,10 @@ local function Mount(legacy)
                 end
             else
                 name,spellid,_,_,is_usable,_,_,_,_,_,_ =
-                    C_MountJournal.GetMountInfo(id)
+                    C_MountJournal.GetMountInfoByID(MOUNT_IDS[id])
                 is_usable = is_usable and IsUsableSpell(spellid)
 
-                local mounttype = select(5,C_MountJournal.GetMountInfoExtra(id))
+                local mounttype = select(5,C_MountJournal.GetMountInfoExtraByID(MOUNT_IDS[id]))
                 if mounttype == 248 or mounttype == 247 then
                     flying = true
                 end
@@ -181,6 +186,13 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
         -- update mount list upon learning new mounts or zoning
         ns.GetMounts()
+
+        -- get map to check if we're in broken isles
+        SetMapToCurrentZone()
+        CONTINENT_ID = GetCurrentMapContinent()
+    elseif event == 'PLAYER_LOGIN' then
+        MOUNT_IDS = C_MountJournal.GetMountIDs()
+        ns.MOUNT_IDS = MOUNT_IDS
     elseif event == 'ADDON_LOADED' then
         if ... ~= addon then return end
 
@@ -221,6 +233,7 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
     end
 end)
 ns.f:RegisterEvent('ADDON_LOADED')
+ns.f:RegisterEvent('PLAYER_LOGIN')
 ns.f:RegisterEvent('COMPANION_LEARNED')
 ns.f:RegisterEvent('PLAYER_ENTERING_WORLD')
 
