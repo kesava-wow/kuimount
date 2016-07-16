@@ -77,7 +77,8 @@ local function Mount(legacy)
     local usable, usablewl = {}, {}
 
     local useFlying = (not IsControlKeyDown() and IsFlyableArea()) and
-                      (not CONTINENT_ID or CONTINENT_ID ~= 8)
+                      (not CONTINENT_ID or CONTINENT_ID ~= 8) and
+                      (GetZoneText() ~= "The Wandering Isle")
 
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
 
