@@ -1,7 +1,6 @@
---[[
-    Kui Mount
-    Kesava-Auchindoun
-]]
+-- Kui Mount
+-- By Kesava at curse.com
+-- All rights reserved
 local addon, ns = ...
 local select, strfind, strlower, tonumber, tinsert
     = select, strfind, strlower, tonumber, tinsert
@@ -19,6 +18,12 @@ local swimZones = {
     ['Shimmering Expanse'] = true,
     ['Damplight Chamber'] = true,
     ['Beth\'mora Ridge'] = true,
+}
+
+-- zones that aren't flyable despite being flagged as such
+local nonFlyZones = {
+    ['The Wandering Isle'] = true,
+    ['Helheim'] = true,
 }
 
 -- spell id mounts which don't specify they can fly in their tooltip
@@ -78,7 +83,7 @@ local function Mount(legacy)
 
     local useFlying = (not IsControlKeyDown() and IsFlyableArea()) and
                       (not CONTINENT_ID or CONTINENT_ID ~= 8) and
-                      (GetZoneText() ~= "The Wandering Isle")
+                      (not nonFlyZones[GetZoneText()])
 
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
 
