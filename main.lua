@@ -24,6 +24,10 @@ local swimZones = {
 local nonFlyZones = {
     ['The Wandering Isle'] = true,
     ['Helheim'] = true,
+    ['Skyhold'] = true,
+    ['Niskara'] = true,
+    ['Dreadscar Rift'] = true,
+    ['The Maelstrom'] = true,
 }
 
 -- spell id mounts which don't specify they can fly in their tooltip
