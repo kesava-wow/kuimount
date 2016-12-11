@@ -1,10 +1,13 @@
+package-as:
+    Kui_Mount
+
 manual-changelog:
     filename: changelog
     markup-type: creole
 
 enable-nolib-creation:
     no
-			
+
 ignore:
     - .gitignore
-	- changelog
+    - changelog
