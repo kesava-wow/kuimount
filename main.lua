@@ -47,6 +47,20 @@ local spellIdMounts = {
     165962, -- flight form
 }
 
+-- default for special mount types
+local aquaticMounts = {
+    75207,  -- sea pony
+    98718,  -- sea pony 2.0
+    64731,  -- sea turtle
+    223018, -- fathom dweller
+    228919, -- darkwater skate
+    214791, -- brinedeep bottom-feeder
+}
+local waterWalkingMounts = {
+    118089, -- azure water strider
+    127271, -- crimson water strider
+}
+
 ns.f = CreateFrame('Frame', KuiMountFrame)
 
 ------------------------------------------------------------------- functions --
