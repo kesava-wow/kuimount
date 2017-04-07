@@ -4,7 +4,7 @@
 local addon, ns = ...
 local select, strfind, strlower, tonumber, tinsert
     = select, strfind, strlower, tonumber, tinsert
-local professions, i, x
+local _,i,x
 local SecureButton
 
 local MOUNT_IDS
