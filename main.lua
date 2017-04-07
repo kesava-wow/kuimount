@@ -49,133 +49,125 @@ local spellIdMounts = {
 
 -- default for special mount types
 local aquaticMounts = {
-    75207,  -- sea pony
-    98718,  -- sea pony 2.0
-    64731,  -- sea turtle
-    223018, -- fathom dweller
-    228919, -- darkwater skate
-    214791, -- brinedeep bottom-feeder
+    [75207] = true,  -- sea pony
+    [98718] = true,  -- sea pony 2.0
+    [64731] = true,  -- sea turtle
+    [223018] = true, -- fathom dweller
+    [228919] = true, -- darkwater skate
+    [214791] = true, -- brinedeep bottom-feeder
 }
 local waterWalkingMounts = {
-    118089, -- azure water strider
-    127271, -- crimson water strider
+    [118089] = true, -- azure water strider
+    [127271] = true, -- crimson water strider
 }
 
 ns.f = CreateFrame('Frame', KuiMountFrame)
 
-------------------------------------------------------------------- functions --
-ns.mountlist,ns.nummounts = {},0
-ns.GetMounts = function()
-    ns.mountlist = {}
-    ns.nummounts = 0
+-- mount collection functions ##################################################
+local collected_mounts_by_name = {}
+local collected_mounts_by_spellid = {}
+local known_spellid_mounts = {}
+local num_mounts = 0
+function ns:GetMounts()
+    -- generate list of mounts by spell id => id, name => id
+    wipe(collected_mounts_by_name)
+    wipe(collected_mounts_by_spellid)
+    num_mounts = 0
 
-    for i = 1,C_MountJournal.GetNumMounts() do
-        local mountname,_,_,_,_,_,_,_,_,_,collected =
-            C_MountJournal.GetMountInfoByID(MOUNT_IDS[i])
+    for k,i in ipairs(C_MountJournal.GetMountIDs()) do
+        local name,spellid,icon,active,usable,sourceType,isFavorite,
+              isFactionSpecific,faction,isFiltered,isCollected,mountID =
+              C_MountJournal.GetMountInfoByID(i)
 
-        if collected then
-            ns.mountlist[strlower(mountname)] = i
-            ns.nummounts = ns.nummounts + 1
+        if isCollected then
+            collected_mounts_by_name[strlower(name)] = mountID
+            collected_mounts_by_spellid[spellid] = mountID
+            num_mounts = num_mounts + 1
         end
     end
 
-    -- add non-companion mounts
+    -- add known non-companion mounts
+    wipe(known_spellid_mounts)
     for _,id in pairs(spellIdMounts) do
         if IsSpellKnown(id) then
             local name = GetSpellInfo(id)
-            ns.mountlist[strlower(name)] = { name, id }
+            known_spellid_mounts[strlower(name)] = id
+            num_mounts = num_mounts + 1
         end
     end
 end
+function ns:GetMountID(name_or_spellid)
+    return collected_mounts_by_spellid[name_or_spellid] or
+           collected_mounts_by_name[name_or_spellid] or
+           nil
+end
+function ns:GetNumKnownMounts()
+    return num_mounts
+end
 
-local function Mount(legacy)
-    if ns.nummounts <= 0 then
+-- mounting functions ##########################################################
+local function Mount()
+    if ns:GetNumKnownMounts() <= 0 then
         UIErrorsFrame:AddMessage('You don\'t have any mounts', 1,0,0)
         return
     end
 
-    local whitelist = ns.GetActiveList()
-    local useHybrid = KuiMountSaved.useHybrid
-    local usable, usablewl = {}, {}
-
-    local useFlying = (not IsControlKeyDown() and IsFlyableArea()) and
-                      (not nonFlyZones[GetZoneText()])
-
+    local list
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
+    local useAquatic = isSwimZone and IsShiftKeyDown()
+    local useFlying = not useAquatic and
+                      (not IsControlKeyDown() and IsFlyableArea()) and
+                      (not nonFlyZones[GetZoneText()])
+    local useWaterWalking = not useFlying and not useAquatic and
+                            IsShiftKeyDown()
 
-    if isSwimZone and
-       ns.mountlist['vashj\'ir seahorse'] and
-       not IsShiftKeyDown()
-    then -- use the seapony in vashj'ir
-        local spellid = select(2,C_MountJournal.GetMountInfoByID(MOUNT_IDS[ns.mountlist['vashj\'ir seahorse']]))
-        tinsert(usable, spellid)
-    elseif not useFlying
-           and IsShiftKeyDown()
-           and ns.mountlist['azure water strider']
-    then -- use the water strider
-        local spellid = select(2,C_MountJournal.GetMountInfoByID(MOUNT_IDS[ns.mountlist['azure water strider']]))
-        tinsert(usable, spellid)
-    else
-        -- find all usable mounts
-        local _, id
-        for _, id in pairs(ns.mountlist) do
-            local name,spellid,is_usable
-            local flying
+    -- TODO temp for testing
+    local active_set = KuiMountSaved.Sets[1]
 
-            if type(id) == 'table' then
-                -- parse non-companion mounts
-                name,spellid = unpack(id)
-                is_usable = IsUsableSpell(spellid)
-                local desc = GetSpellDescription(spellid)
+    -- now we know which list to use...
+    local list = (useAquatic and active_set[3]) or
+                 (useFlying and active_set[2]) or
+                 (useWaterWalking and active_set[4]) or
+                 active_set[1]
 
-                if strfind(desc, 'flying') or strfind(desc, 'flight') then
-                    -- flying or hybrid
-                    flying = true
-                end
+    -- make a list of all currently usable mounts
+    -- (both in and out of the whitelist, so that we can fallback and ignore
+    -- the whitelist if none were found)
+    local usable_mounts, usable_mounts_wl = {},{}
+    for name,mount_id in pairs(collected_mounts_by_name) do
+        local _,spellid,_,_,usable = C_MountJournal.GetMountInfoByID(mount_id)
+        if usable then
+            tinsert(usable_mounts,spellid)
 
-                if extraHybrid[spellid] then
-                    -- override capabilities detected by description
-                    flying = true
-                end
-            else
-                name,spellid,_,_,is_usable,_,_,_,_,_,_ =
-                    C_MountJournal.GetMountInfoByID(MOUNT_IDS[id])
-                is_usable = is_usable and IsUsableSpell(spellid)
-
-                local mounttype = select(5,C_MountJournal.GetMountInfoExtraByID(MOUNT_IDS[id]))
-                if mounttype == 248 or mounttype == 247 then
-                    flying = true
-                end
-            end
-
-            if is_usable then
-                if  (useFlying and flying) or
-                    (not useFlying and (useHybrid or not flying))
-                then
-                    tinsert(usable, spellid)
-                    --print('['..id..', '..(flying and 'fly' or '')..' '..name)
-
-                    if whitelist[name] then
-                        tinsert(usablewl, spellid)
-                    end
-                end
+            if list[spellid] then
+                tinsert(usable_mounts_wl,spellid)
             end
         end
     end
 
-    if #usablewl > 0 then
+    -- add spell id mounts
+    for name,spellid in pairs(known_spellid_mounts) do
+        if IsSpellKnown(spellid) and IsUsableSpell(spellid) then
+            tinsert(usable_mounts,spellid)
+
+            if list[spellid] then
+                tinsert(usable_mounts_wl,spellid)
+            end
+        end
+    end
+
+    if #usable_mounts_wl > 0 then
         -- use mount from whitelist
-        usable = usablewl
+        usable_mounts = usable_mounts_wl
     end
 
-    -- Select usable mount -----------------------------------------------------
-    if #usable > 0 then
-        local name = GetSpellInfo(usable[math.random(1, #usable)])
-        if legacy then
-            CastSpellByName(name)
-        else
-            SecureButton:SetAttribute('macrotext', '/cast '..name)
-        end
+    -- select random usable mount
+    if #usable_mounts > 0 then
+        local spell_name = GetSpellInfo(
+            usable_mounts[math.random(1,#usable_mounts)]
+        )
+
+        SecureButton:SetAttribute('macrotext','/cast '..spell_name)
     else
         UIErrorsFrame:AddMessage('Couldn\'t find a usable mount', 1,0,0)
     end
@@ -207,7 +199,7 @@ end
 ns.f:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
         -- update mount list upon learning new mounts or zoning
-        ns.GetMounts()
+        ns:GetMounts()
     elseif event == 'PLAYER_LOGIN' then
         MOUNT_IDS = C_MountJournal.GetMountIDs()
         ns.MOUNT_IDS = MOUNT_IDS
@@ -224,29 +216,34 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             KuiMountSaved = {}
         end
 
-        if not KuiMountSaved.Sets then
-            KuiMountSaved.Sets = {
-                ['One'] = KuiMountSaved.whitelist or {},
-                ['Two'] = KuiMountSaved.blacklist or {},
-                ['Three'] = {}
-            }
-        end
+        if KuiMountSaved.Sets and KuiMountSaved.Sets.One then
+            -- backup old saved variables and reset
+            KuiMountSaved.OLD_SET_ONE = KuiMountSaved.Sets.One
+            KuiMountSaved.OLD_SET_TWO = KuiMountSaved.Sets.Two
+            KuiMountSaved.OLD_SET_THREE = KuiMountSaved.Sets.Three
 
-        if KuiMountSaved.useHybrid == nil then
-            KuiMountSaved.useHybrid = true
-        end
+            if KuiMountCharacter and KuiMountCharacter.list then
+                KuiMountCharacter.OLD_SET_CHAR = KuiMountCharacter.list
+            end
 
-        -- character specific
-        if not KuiMountCharacter then
+            KuiMountSaved = {}
             KuiMountCharacter = {}
         end
 
-        if not KuiMountCharacter.ActiveSet then
-            KuiMountCharacter.ActiveSet = 'One'
+        if not KuiMountSaved.Sets then
+            KuiMountSaved.Sets = {
+                {
+                    {}, -- ground
+                    {}, -- flying
+                    aquaticMounts,
+                    waterWalkingMounts,
+                },
+            }
         end
 
-        if not KuiMountCharacter.list then
-            KuiMountCharacter.list = KuiMountCharacter.whitelist or {}
+        -- character specific (active set)
+        if not KuiMountCharacter then
+            KuiMountCharacter = {}
         end
     end
 end)

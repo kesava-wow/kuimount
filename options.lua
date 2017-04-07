@@ -272,6 +272,11 @@ SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
 
 function SlashCmdList.KUIMOUNT(msg)
+    if msg == 'debug' then
+        ns.debug = not ns.debug
+        return
+    end
+
     InterfaceOptionsFrame_OpenToCategory(category)
     InterfaceOptionsFrame_OpenToCategory(category)
 
