@@ -236,8 +236,9 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
                 KuiMountCharacter.OLD_SET_CHAR = KuiMountCharacter.list
             end
 
-            KuiMountSaved = {}
-            KuiMountCharacter = {}
+            KuiMountSaved.Sets = nil
+            KuiMountCharacter.list = nil
+            KuiMountCharacter.ActiveSet = 1
         end
 
         if not KuiMountSaved.Sets then
