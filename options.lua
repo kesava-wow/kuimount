@@ -1,7 +1,6 @@
---[[
-    Kui Mount
-    Kesava-Auchindoun
-]]
+-- Kui Mount
+-- By Kesava at curse.com
+-- All rights reserved
 local addon,ns = ...
 local category = 'Kui |cff9966ffMount|r'
 

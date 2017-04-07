@@ -112,6 +112,10 @@ local function Mount()
         return
     end
 
+    local active_set = KuiMountCharacter.ActiveSet and
+                       KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] or
+                       KuiMountSaved.Sets[1]
+
     local list
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
     local useAquatic = isSwimZone and IsShiftKeyDown()
@@ -120,9 +124,6 @@ local function Mount()
                       (not nonFlyZones[GetZoneText()])
     local useWaterWalking = not useFlying and not useAquatic and
                             IsShiftKeyDown()
-
-    -- TODO temp for testing
-    local active_set = KuiMountSaved.Sets[1]
 
     -- now we know which list to use...
     local list = (useAquatic and active_set[3]) or
