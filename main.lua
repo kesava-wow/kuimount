@@ -105,7 +105,6 @@ function ns:GetNumKnownMounts()
     return num_mounts
 end
 
-
 -- saved variable functions ####################################################
 function ns:GetActiveSet()
     return KuiMountCharacter.ActiveSet and
@@ -146,7 +145,7 @@ local function Mount()
         if usable then
             tinsert(usable_mounts,spellid)
 
-            if list[spellid] then
+            if list[name] or list[spellid] then
                 tinsert(usable_mounts_wl,spellid)
             end
         end
@@ -157,7 +156,7 @@ local function Mount()
         if IsSpellKnown(spellid) and IsUsableSpell(spellid) then
             tinsert(usable_mounts,spellid)
 
-            if list[spellid] then
+            if list[name] or list[spellid] then
                 tinsert(usable_mounts_wl,spellid)
             end
         end

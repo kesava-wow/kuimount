@@ -12,9 +12,7 @@ do
     opt:Hide()
     opt.name = category
 
-    --------------------------------------------------------------- Functions --
-
-    -- helper for creating scrollable edit boxes
+    -- element helpers #########################################################
     local function CreateEditBox(name, width, height)
         local box = CreateFrame('EditBox', name..'EditBox', opt)
         box:SetMultiLine(true)
@@ -49,7 +47,6 @@ do
 
         return box
     end
-
     local function CreateCheckBox(name, desc, accountWide, callback)
         local check = CreateFrame('CheckButton', 'KuiMount'..name..'Check', opt, 'OptionsBaseCheckButtonTemplate')
 
@@ -83,31 +80,22 @@ do
         return check
     end
 
-    local function ActivateSet(set_id)
-        if not set_id or not KuiMountSaved.Sets[set_id] then return end
-
-        KuiMountCharacter.ActiveSet = set_id
-
-        -- load the active set lists into the edit boxes
-        -- TODO seperate function to parse spellid lists into names
-    end
-    local function SetValues()
-        -- set interface state
-        ActivateSet(KuiMountCharacter.ActiveSet or 1)
-    end
-
     ------------------------------------------------- Create options elements --
     -- ground mounts edit box ##################################################
     local edit_ground = CreateEditBox('KuiMountGround',154,400)
+    edit_ground.env_id = 1
     edit_ground.Scroll:SetPoint('TOPLEFT',30,-60)
 
     local edit_flying = CreateEditBox('KuiMountFlying',154,400)
+    edit_flying.env_id = 2
     edit_flying.Scroll:SetPoint('TOPLEFT',edit_ground.Scroll,'TOPRIGHT',40,0)
 
     local edit_aquatic = CreateEditBox('KuiMountAquatic',154,175)
+    edit_aquatic.env_id = 3
     edit_aquatic.Scroll:SetPoint('TOPLEFT',edit_flying.Scroll,'TOPRIGHT',40,0)
 
     local edit_waterw = CreateEditBox('KuiMountWaterWalking',154,175)
+    edit_waterw.env_id = 4
     edit_waterw.Scroll:SetPoint('TOPLEFT',edit_aquatic.Scroll,'BOTTOMLEFT',0,-50)
 
     -- titles ##################################################################
@@ -137,7 +125,32 @@ do
     help_text:SetJustifyH('LEFT')
     help_text:SetJustifyV('TOP')
 
-    --------------------------------------------------------- Script handlers --
+    -- functions ###############################################################
+    local function SetEditBoxToList(editbox,list)
+        local text
+        for t,_ in pairs(list) do
+            text = text and text..t..'\n' or t..'\n'
+        end
+        editbox:SetText(text or '')
+    end
+
+    local function ActivateSet(set_id)
+        if not set_id or not KuiMountSaved.Sets[set_id] then return end
+
+        KuiMountCharacter.ActiveSet = set_id
+
+        local set = ns:GetActiveSet()
+        SetEditBoxToList(edit_ground,set[1])
+        SetEditBoxToList(edit_flying,set[2])
+        SetEditBoxToList(edit_aquatic,set[3])
+        SetEditBoxToList(edit_waterw,set[4])
+    end
+    local function SetValues()
+        -- set interface state
+        ActivateSet(KuiMountCharacter.ActiveSet or 1)
+    end
+
+    -- scripts #################################################################
     local function OnOptionsShow()
         SetValues()
     end
@@ -147,53 +160,26 @@ do
     end
 
     local function OnEditFocusLost(self)
-        ns.GetMounts()
+        if not self.env_id then return end
 
-        local text = { strsplit('\n', self:GetText()) }
-        local invalid = {}
-        local entries = {}
+        local new_list = { strsplit('\n', self:GetText()) }
+        local set = ns:GetActiveSet()
+        local list = {}
 
-        -- get the active list
-        local env = ns:GetActiveSet()
-
-        local k,name,_
-        for k, name in ipairs(text) do
+        for k,name in ipairs(new_list) do
             if name ~= '' then
-                local rname
-                local mount_id = ns.mountlist[strlower(name)]
-
-                if mount_id then
-                    -- the player does actually have this mount
-                    if type(mount_id) == 'table' then
-                        -- its a spell mount, rather than a companion
-                        rname = mount_id[1]
-                    else
-                        rname = C_MountJournal.GetMountInfoByID(ns.MOUNT_IDS[mount_id])
-                    end
-                end
-
-                -- if the mount can't be found, just store it verbatim
-                entries[rname or name] = true
-                env[rname or name] = true
-
-                if not rname then
-                    -- (and warn the player about it)
-                    tinsert(invalid, name)
-                end
+                list[strlower(name)] = true
+                -- TODO verify & correct into name?
             end
         end
 
-        for name, _ in pairs(env) do
-            -- check for removed mounts
-            if not entries[name] then
-                env[name] = nil
-            end
-        end
+        set[self.env_id] = list
 
-        if not KuiMountSaved.supressErrors and #invalid > 0 then
-            -- print invalid mounts
-            print(category..': |cffff3333The following mounts were not found in your spellbook:|r '..table.concat(invalid, ', '))
+        -- push new list to saved variable
+        if not KuiMountCharacter.ActiveSet then
+            KuiMountCharacter.ActiveSet = 1
         end
+        KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
     end
 
     local function OnSetButtonClicked(button)
@@ -201,15 +187,16 @@ do
         ActivateSet(button:GetText())
     end
 
+    edit_ground:SetScript('OnEscapePressed',OnEscapePressed)
+    edit_ground:SetScript('OnEditFocusLost',OnEditFocusLost)
+    edit_flying:SetScript('OnEscapePressed',OnEscapePressed)
+    edit_flying:SetScript('OnEditFocusLost',OnEditFocusLost)
+    edit_aquatic:SetScript('OnEscapePressed',OnEscapePressed)
+    edit_aquatic:SetScript('OnEditFocusLost',OnEditFocusLost)
+    edit_waterw:SetScript('OnEscapePressed',OnEscapePressed)
+    edit_waterw:SetScript('OnEditFocusLost',OnEditFocusLost)
+
     opt:SetScript('OnShow', OnOptionsShow)
-
-    --preferedBox:SetScript('OnEscapePressed', OnEscapePressed)
-    --preferedBox:SetScript('OnEditFocusLost', OnEditFocusLost)
-
-    --SetChar:SetScript('OnClick', OnSetButtonClicked)
-    --SetOne:SetScript('OnClick', OnSetButtonClicked)
-    --SetTwo:SetScript('OnClick', OnSetButtonClicked)
-    --SetThree:SetScript('OnClick', OnSetButtonClicked)
 
     InterfaceOptions_AddCategory(opt)
 end
@@ -226,8 +213,4 @@ function SlashCmdList.KUIMOUNT(msg)
 
     InterfaceOptionsFrame_OpenToCategory(category)
     InterfaceOptionsFrame_OpenToCategory(category)
-
-    if msg == '' then
-        print(category..': |cffff3333You need to update your mount macro!|r Change the |cffaaaaaa/mount|r line to |cffaaaaaa/click KuiMountSecureButton')
-    end
 end
