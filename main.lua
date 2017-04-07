@@ -47,20 +47,6 @@ local spellIdMounts = {
     165962, -- flight form
 }
 
--- default for special mount types
-local aquaticMounts = {
-    [75207] = true,  -- sea pony
-    [98718] = true,  -- sea pony 2.0
-    [64731] = true,  -- sea turtle
-    [223018] = true, -- fathom dweller
-    [228919] = true, -- darkwater skate
-    [214791] = true, -- brinedeep bottom-feeder
-}
-local waterWalkingMounts = {
-    [118089] = true, -- azure water strider
-    [127271] = true, -- crimson water strider
-}
-
 ns.f = CreateFrame('Frame', KuiMountFrame)
 
 -- mount collection functions ##################################################
@@ -110,6 +96,24 @@ function ns:GetActiveSet()
     return KuiMountCharacter.ActiveSet and
            KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] or
            KuiMountSaved.Sets[1]
+end
+local function DefaultSet()
+    return {
+        {}, -- ground
+        {}, -- flying
+        {   -- aquatic
+            [75207] = true,  -- sea pony
+            [98718] = true,  -- sea pony 2.0
+            [64731] = true,  -- sea turtle
+            [223018] = true, -- fathom dweller
+            [228919] = true, -- darkwater skate
+            [214791] = true, -- brinedeep bottom-feeder
+        },
+        {   -- water walking
+            [118089] = true, -- azure water strider
+            [127271] = true, -- crimson water strider
+        },
+    }
 end
 
 -- mounting functions ##########################################################
@@ -238,18 +242,14 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 
         if not KuiMountSaved.Sets then
             KuiMountSaved.Sets = {
-                {
-                    {}, -- ground
-                    {}, -- flying
-                    aquaticMounts,
-                    waterWalkingMounts,
-                },
+                DefaultSet()
             }
         end
 
         -- character specific (active set)
         if not KuiMountCharacter then
             KuiMountCharacter = {}
+            KuiMountCharacter.ActiveSet = 1
         end
     end
 end)

@@ -117,7 +117,7 @@ do
 
     -- help text ###############################################################
     local help_text = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
-    help_text:SetText('Type the names of mounts into the set list. Each mount must be on its own line. When you close the window the lists will be verified and entries may move around. Class or faction specific mounts will generate errors unless you are currently playing that class or faction - to supress these errors, check the "Supress spellbook errors" option.')
+    help_text:SetText('Type the |cffffff88names|r or |cffffff88spell IDs|r of mounts into the relevant list and press |cffffff88Escape|r. Each mount must be on its own line. The name of the list doesn\'t matter; if you want to use a flying mount as a ground mount, put it in the |cffffff88Ground|r list.')
     help_text:SetPoint('BOTTOM',0,0)
     help_text:SetHeight(80)
     help_text:SetWidth(550)
@@ -205,9 +205,23 @@ end
 SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
 
+local function DumpOldSet(set)
+    if not set then return end
+    local t
+    for k,v in pairs(set) do
+        t = t and t..', '..k or k..', '
+    end
+    print(t)
+end
 function SlashCmdList.KUIMOUNT(msg)
     if msg == 'debug' then
         ns.debug = not ns.debug
+        return
+    elseif msg == 'dump-old' then
+        DumpOldSet(KuiMountSaved.OLD_SET_ONE)
+        DumpOldSet(KuiMountSaved.OLD_SET_TWO)
+        DumpOldSet(KuiMountSaved.OLD_SET_THREE)
+        DumpOldSet(KuiMountCharacter.OLD_SET_CHAR)
         return
     end
 
