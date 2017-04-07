@@ -105,6 +105,14 @@ function ns:GetNumKnownMounts()
     return num_mounts
 end
 
+
+-- saved variable functions ####################################################
+function ns:GetActiveSet()
+    return KuiMountCharacter.ActiveSet and
+           KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] or
+           KuiMountSaved.Sets[1]
+end
+
 -- mounting functions ##########################################################
 local function Mount()
     if ns:GetNumKnownMounts() <= 0 then
@@ -112,9 +120,7 @@ local function Mount()
         return
     end
 
-    local active_set = KuiMountCharacter.ActiveSet and
-                       KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] or
-                       KuiMountSaved.Sets[1]
+    local active_set = ns:GetActiveSet()
 
     local list
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]

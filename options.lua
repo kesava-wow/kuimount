@@ -4,13 +4,6 @@
 local addon,ns = ...
 local category = 'Kui |cff9966ffMount|r'
 
-local function GetActiveList()
-    return KuiMountCharacter.ActiveSet == 'Char' and
-           KuiMountCharacter.list or
-           KuiMountSaved.Sets[KuiMountCharacter.ActiveSet]
-end
-ns.GetActiveList = GetActiveList
-
 do
     local preferedBox, useHybridCheck, supressErrorsCheck
 
@@ -23,7 +16,7 @@ do
 
     -- helper for creating scrollable edit boxes
     local function CreateEditBox(name, width, height)
-        local box = CreateFrame('EditBox', name, opt)
+        local box = CreateFrame('EditBox', name..'EditBox', opt)
         box:SetMultiLine(true)
         box:SetAutoFocus(false)
         --box:EnableMouse(false)
@@ -31,7 +24,7 @@ do
         box:SetSize(width, height)
         box:Show()
 
-        local scroll = CreateFrame('ScrollFrame', name..'Scroll', opt, 'UIPanelScrollFrameTemplate')
+        local scroll = CreateFrame('ScrollFrame', name..'ScrollFrame', opt, 'UIPanelScrollFrameTemplate')
         scroll:SetSize(width, height)
         scroll:SetScrollChild(box)
 
@@ -90,104 +83,59 @@ do
         return check
     end
 
-    local function ActivateSet(name)
-        if not _G['KuiMountSet'..name..'Button'] then return end
-        if name ~= 'Char' and not KuiMountSaved.Sets[name] then return end
-        if name == 'Char' and not KuiMountCharacter.list then return end
+    local function ActivateSet(set_id)
+        if not set_id or not KuiMountSaved.Sets[set_id] then return end
 
-        local buttons,_
-        for _,button in pairs({
-            'KuiMountSetCharButton',
-            'KuiMountSetThreeButton',
-            'KuiMountSetTwoButton',
-            'KuiMountSetOneButton',
-        }) do
-            _G[button]:Enable()
-        end
+        KuiMountCharacter.ActiveSet = set_id
 
-        _G['KuiMountSet'..name..'Button']:Disable()
-        KuiMountCharacter.ActiveSet = name
-
-        -- load the active set list into the text area
-        local list = GetActiveList()
-        local text,name,_
-        for name,_ in pairs(list) do
-            text = (text and text..'\n'..name or name)
-        end
-
-        preferedBox:SetText(text or '')
+        -- load the active set lists into the edit boxes
+        -- TODO seperate function to parse spellid lists into names
     end
-
     local function SetValues()
-        ActivateSet(KuiMountCharacter.ActiveSet or 'One')
-
-        useHybridCheck:SetChecked(KuiMountSaved.useHybrid)
-        supressErrorsCheck:SetChecked(KuiMountSaved.supressErrors)
+        -- set interface state
+        ActivateSet(KuiMountCharacter.ActiveSet or 1)
     end
 
     ------------------------------------------------- Create options elements --
-    -- Use hybrid mounts as ground mounts checkbox -----------------------------
-    useHybridCheck = CreateCheckBox('useHybrid', 'Use hybrid mounts as ground mounts')
-    useHybridCheck:SetPoint('TOPLEFT', 16, -16)
+    -- ground mounts edit box ##################################################
+    local edit_ground = CreateEditBox('KuiMountGround',154,400)
+    edit_ground.Scroll:SetPoint('TOPLEFT',30,-60)
 
-    -- Supress spellbook errors checkbox ---------------------------------------
-    supressErrorsCheck = CreateCheckBox('supressErrors', 'Supress spellbook errors')
-    supressErrorsCheck:SetPoint('TOPLEFT', 332, -16)
+    local edit_flying = CreateEditBox('KuiMountFlying',154,400)
+    edit_flying.Scroll:SetPoint('TOPLEFT',edit_ground.Scroll,'TOPRIGHT',40,0)
 
-    -- Prefered ----------------------------------------------------------------
-    local preferedTitle = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormalLarge')
-    preferedTitle:SetText('Whitelist')
-    preferedTitle:SetPoint('TOPLEFT', useHybridCheck, 'BOTTOMLEFT', 10, -10)
+    local edit_aquatic = CreateEditBox('KuiMountAquatic',154,175)
+    edit_aquatic.Scroll:SetPoint('TOPLEFT',edit_flying.Scroll,'TOPRIGHT',40,0)
 
-    preferedBox = CreateEditBox('KuiMountPreferedBox', 550, 380)
-    preferedBox.Scroll:SetPoint('TOPLEFT', preferedTitle, 'BOTTOMLEFT', 0, -16)
+    local edit_waterw = CreateEditBox('KuiMountWaterWalking',154,175)
+    edit_waterw.Scroll:SetPoint('TOPLEFT',edit_aquatic.Scroll,'BOTTOMLEFT',0,-50)
 
-    -- set buttons
-    local SetChar = CreateFrame('Button', 'KuiMountSetCharButton', opt, 'UIPanelButtonTemplate')
-    SetChar:SetPoint('BOTTOMRIGHT', preferedBox, 'TOPRIGHT', 25, 13)
-    SetChar:SetText('Char')
+    -- titles ##################################################################
+    local title_ground = opt:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_ground:SetPoint('BOTTOM',edit_ground.Backdrop,'TOP',0,5)
+    title_ground:SetText('Ground')
 
-    local SetThree = CreateFrame('Button', 'KuiMountSetThreeButton', opt, 'UIPanelButtonTemplate')
-    SetThree:SetPoint('RIGHT', SetChar, 'LEFT')
-    SetThree:SetText('Three')
+    local title_flying = opt:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_flying:SetPoint('BOTTOM',edit_flying.Backdrop,'TOP',0,5)
+    title_flying:SetText('Flying')
 
-    local SetTwo = CreateFrame('Button', 'KuiMountSetTwoButton', opt, 'UIPanelButtonTemplate')
-    SetTwo:SetPoint('RIGHT', SetThree, 'LEFT')
-    SetTwo:SetText('Two')
+    local title_aquatic = opt:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_aquatic:SetPoint('BOTTOM',edit_aquatic.Backdrop,'TOP',0,5)
+    title_aquatic:SetText('Aquatic')
 
-    local SetOne = CreateFrame('Button', 'KuiMountSetOneButton', opt, 'UIPanelButtonTemplate')
-    SetOne:SetPoint('RIGHT', SetTwo, 'LEFT')
-    SetOne:SetText('One')
+    local title_waterw = opt:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_waterw:SetPoint('BOTTOM',edit_waterw.Backdrop,'TOP',0,5)
+    title_waterw:SetText('Water Walking')
 
-    local SetsText = opt:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-    SetsText:SetText('Stored sets')
-    SetsText:SetPoint('RIGHT', SetOne, 'LEFT', -5, 0)
-
-    local SetsTooltipFrame = CreateFrame('Frame', nil, opt)
-    SetsTooltipFrame:SetAllPoints(SetsText)
-    SetsTooltipFrame:EnableMouse(true)
-
-    SetsTooltipFrame:SetScript('OnEnter', function(self)
-        -- tooltip for sets
-        GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-        GameTooltip:SetWidth(200)
-        GameTooltip:AddLine('Stored sets')
-        GameTooltip:AddLine('Sets One, Two and Three are saved account-wide, but which set is currently active is saved per-character. The Char set is character specific.', 1, 1, 1, true)
-        GameTooltip:Show()
-    end)
-    SetsTooltipFrame:SetScript('OnLeave', function(self)
-        GameTooltip:Hide()
-    end)
-
-    -- Blacklist/whitelist help text -------------------------------------------
-    local blacklistHelp = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
-    blacklistHelp:SetText('Type the names of mounts into the set list. Each mount must be on its own line. When you close the window the lists will be verified and entries may move around. Class or faction specific mounts will generate errors unless you are currently playing that class or faction - to supress these errors, check the "Supress spellbook errors" option.')
-    blacklistHelp:SetPoint('TOPLEFT', preferedBox.Scroll, 'BOTTOMLEFT', 0, -15)
-    blacklistHelp:SetHeight(80)
-    blacklistHelp:SetWidth(550)
-    blacklistHelp:SetWordWrap(true)
-    blacklistHelp:SetJustifyH('LEFT')
-    blacklistHelp:SetJustifyV('TOP')
+    -- help text ###############################################################
+    local help_text = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
+    help_text:SetText('Type the names of mounts into the set list. Each mount must be on its own line. When you close the window the lists will be verified and entries may move around. Class or faction specific mounts will generate errors unless you are currently playing that class or faction - to supress these errors, check the "Supress spellbook errors" option.')
+    help_text:SetPoint('BOTTOM',0,0)
+    help_text:SetHeight(80)
+    help_text:SetWidth(550)
+    help_text:SetWordWrap(true)
+    help_text:SetJustifyH('LEFT')
+    help_text:SetJustifyV('TOP')
 
     --------------------------------------------------------- Script handlers --
     local function OnOptionsShow()
@@ -206,7 +154,7 @@ do
         local entries = {}
 
         -- get the active list
-        local env = GetActiveList()
+        local env = ns:GetActiveSet()
 
         local k,name,_
         for k, name in ipairs(text) do
@@ -255,13 +203,13 @@ do
 
     opt:SetScript('OnShow', OnOptionsShow)
 
-    preferedBox:SetScript('OnEscapePressed', OnEscapePressed)
-    preferedBox:SetScript('OnEditFocusLost', OnEditFocusLost)
+    --preferedBox:SetScript('OnEscapePressed', OnEscapePressed)
+    --preferedBox:SetScript('OnEditFocusLost', OnEditFocusLost)
 
-    SetChar:SetScript('OnClick', OnSetButtonClicked)
-    SetOne:SetScript('OnClick', OnSetButtonClicked)
-    SetTwo:SetScript('OnClick', OnSetButtonClicked)
-    SetThree:SetScript('OnClick', OnSetButtonClicked)
+    --SetChar:SetScript('OnClick', OnSetButtonClicked)
+    --SetOne:SetScript('OnClick', OnSetButtonClicked)
+    --SetTwo:SetScript('OnClick', OnSetButtonClicked)
+    --SetThree:SetScript('OnClick', OnSetButtonClicked)
 
     InterfaceOptions_AddCategory(opt)
 end
