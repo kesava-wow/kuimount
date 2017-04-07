@@ -7,7 +7,6 @@ local select, strfind, strlower, tonumber, tinsert
 local professions, i, x
 local SecureButton
 
-local CONTINENT_ID
 local MOUNT_IDS
 
 local swimZones = {
@@ -86,7 +85,6 @@ local function Mount(legacy)
     local usable, usablewl = {}, {}
 
     local useFlying = (not IsControlKeyDown() and IsFlyableArea()) and
-                      (not CONTINENT_ID or CONTINENT_ID ~= 8) and
                       (not nonFlyZones[GetZoneText()])
 
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
@@ -196,10 +194,6 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
         -- update mount list upon learning new mounts or zoning
         ns.GetMounts()
-
-        -- get map to check if we're in broken isles
-        SetMapToCurrentZone()
-        CONTINENT_ID = GetCurrentMapContinent()
     elseif event == 'PLAYER_LOGIN' then
         MOUNT_IDS = C_MountJournal.GetMountIDs()
         ns.MOUNT_IDS = MOUNT_IDS
