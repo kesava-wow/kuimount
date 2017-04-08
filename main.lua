@@ -115,6 +115,11 @@ local function DefaultSet()
         },
     }
 end
+function ns:NewSet(id)
+    -- create or reset given set id
+    if not id then return end
+    KuiMountSaved.Sets[id] = DefaultSet()
+end
 
 -- mounting functions ##########################################################
 local function Mount()

@@ -18,10 +18,9 @@ local function SetEditBoxToList(editbox,list)
     end
     editbox:SetText(text or '')
 end
-local function ActivateSet(set_id)
-    if not set_id or not KuiMountSaved.Sets[set_id] then return end
-
-    KuiMountCharacter.ActiveSet = set_id
+local function SetValues()
+    -- set interface state
+    opt.dd_set:SetValue(KuiMountCharacter.ActiveSet)
 
     local set = ns:GetActiveSet()
     SetEditBoxToList(opt.edit_ground,set[1])
@@ -29,9 +28,10 @@ local function ActivateSet(set_id)
     SetEditBoxToList(opt.edit_aquatic,set[3])
     SetEditBoxToList(opt.edit_waterw,set[4])
 end
-local function SetValues()
-    -- set interface state
-    ActivateSet(KuiMountCharacter.ActiveSet or 1)
+local function ActivateSet(set_id)
+    if not set_id or not KuiMountSaved.Sets[set_id] then return end
+    KuiMountCharacter.ActiveSet = set_id
+    SetValues()
 end
 
 -- element scripts #############################################################
@@ -59,10 +59,6 @@ local function OnEditFocusLost(self)
         KuiMountCharacter.ActiveSet = 1
     end
     KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
-end
-local function OnSetButtonClicked(button)
-    preferedBox:ClearFocus()
-    ActivateSet(button:GetText())
 end
 
 -- config element helpers ######################################################
@@ -135,6 +131,93 @@ local function CreateCheckBox(name, desc, accountWide, callback)
     return check
 end
 
+-- new set popup ##############################################################
+-- shares code from Kui_Nameplates_Core_Config/helpers.lua:CreatePopup et al
+do
+    local function PopupOnShow(self)
+        self.editbox:SetText('')
+        self.editbox:SetFocus()
+        PlaySound("igMainMenuOpen")
+    end
+    local function PopupOnHide(self)
+        PlaySound("igMainMenuClose")
+    end
+    local function PopupOnKeyUp(self,kc)
+        if kc == 'ENTER' then
+            self.Okay:Click()
+        elseif kc == 'ESCAPE' then
+            self.Cancel:Click()
+        end
+    end
+    local function OkayButtonOnClick(self)
+        opt.Popup:Hide()
+        ns:NewSet(opt.Popup.editbox:GetText())
+        ActivateSet(opt.Popup.editbox:GetText())
+    end
+    local function CancelButtonOnClick(self)
+        opt.Popup:Hide()
+        SetValues()
+    end
+    function opt:CreateNewSetPopUp()
+        local popup = CreateFrame('Frame',nil,self)
+        popup:SetBackdrop({
+            bgFile='interface/dialogframe/ui-dialogbox-background',
+            edgeFile='interface/dialogframe/ui-dialogbox-border',
+            edgeSize=32,
+            tile=true,
+            tileSize=32,
+            insets = {
+                top=12,right=12,bottom=11,left=11
+            }
+        })
+        popup:SetPoint('CENTER')
+        popup:SetFrameStrata('DIALOG')
+        popup:EnableMouse(true)
+        popup:SetSize(400,150)
+        popup:Hide()
+
+        popup:SetScript('OnKeyUp',PopupOnKeyUp)
+        popup:SetScript('OnShow',PopupOnShow)
+        popup:SetScript('OnHide',PopupOnHide)
+
+        local label = popup:CreateFontString(nil,'ARTWORK','GameFontNormal')
+        label:SetText('Enter set name')
+        label:SetPoint('CENTER',0,20)
+
+        local text = CreateFrame('EditBox',nil,popup,'InputBoxTemplate')
+        text:SetAutoFocus(false)
+        text:EnableMouse(true)
+        text:SetMaxLetters(50)
+        text:SetPoint('CENTER')
+        text:SetSize(150,30)
+
+        local okay = CreateFrame('Button',nil,popup,'UIPanelButtonTemplate')
+        okay:SetText('OK')
+        okay:SetSize(90,22)
+        okay:SetPoint('BOTTOM',-45,20)
+
+        local cancel = CreateFrame('Button',nil,popup,'UIPanelButtonTemplate')
+        cancel:SetText('Cancel')
+        cancel:SetSize(90,22)
+        cancel:SetPoint('BOTTOM',45,20)
+
+        popup.label = label
+        popup.editbox = text
+        popup.Okay = okay
+        popup.Cancel = cancel
+
+        text:SetScript('OnEnterPressed',OkayButtonOnClick)
+        text:SetScript('OnEscapePressed',CancelButtonOnClick)
+        okay:SetScript('OnClick',OkayButtonOnClick)
+        cancel:SetScript('OnClick',CancelButtonOnClick)
+
+        self.Popup = popup
+
+        opt:HookScript('OnHide',function(self)
+            self.Popup:Hide()
+        end)
+    end
+end
 -- populate config page ########################################################
 function opt:Populate()
     -- set dropdown ############################################################
@@ -143,6 +226,38 @@ function opt:Populate()
     dd_set:SetFrameStrata('TOOLTIP')
     dd_set:SetHeight(20)
     dd_set.labelText:Hide()
+
+    dd_set:HookScript('OnShow',function(self)
+        local list = {}
+
+        -- new set button
+        tinsert(list,{
+            text = 'New set',
+            value = 'new_set'
+        })
+
+        -- buttons for each existing set
+        for set_name,set in pairs(KuiMountSaved.Sets) do
+            tinsert(list,{
+                text = set_name,
+                selected = KuiMountCharacter.ActiveSet == set_name
+            })
+        end
+
+        self:SetList(list)
+        self:SetValue(KuiMountCharacter.ActiveSet)
+    end)
+    function dd_set:OnValueChanged(value,text)
+        if value and value == 'new_set' then
+            -- woo make a new set
+            opt.Popup:Show()
+            return
+        else
+            ActivateSet(text)
+        end
+    end
+
+    self.dd_set = dd_set
 
     -- ground mounts edit box ##################################################
     local edit_ground = CreateEditBox('KuiMountGround',154,400)
@@ -192,6 +307,8 @@ function opt:Populate()
     help_text:SetWordWrap(true)
     help_text:SetJustifyH('LEFT')
     help_text:SetJustifyV('TOP')
+
+    self:CreateNewSetPopUp()
 
     self.initialised = true
 end
