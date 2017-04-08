@@ -139,16 +139,15 @@ end
 function opt:Populate()
     -- set dropdown ############################################################
     local dd_set = pcdd:New(opt,'Set')
-    dd_set:SetPoint('TOPLEFT',10,-20)
+    dd_set:SetPoint('TOP',0,-20)
     dd_set:SetFrameStrata('TOOLTIP')
-    dd_set:SetWidth(152)
     dd_set:SetHeight(20)
     dd_set.labelText:Hide()
 
     -- ground mounts edit box ##################################################
     local edit_ground = CreateEditBox('KuiMountGround',154,400)
     edit_ground.env_id = 1
-    edit_ground.Scroll:SetPoint('TOPLEFT',30,-80)
+    edit_ground.Scroll:SetPoint('TOPLEFT',30,-85)
 
     local edit_flying = CreateEditBox('KuiMountFlying',154,400)
     edit_flying.env_id = 2
@@ -188,7 +187,7 @@ function opt:Populate()
     local help_text = self:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
     help_text:SetText('Type the |cffffff88names|r or |cffffff88spell IDs|r of mounts into the relevant list and press |cffffff88Escape|r. Each mount must be on its own line. The name of the list doesn\'t matter; if you want to use a flying mount as a ground mount, put it in the |cffffff88Ground|r list.')
     help_text:SetPoint('BOTTOM',0,0)
-    help_text:SetHeight(65)
+    help_text:SetHeight(60)
     help_text:SetWidth(550)
     help_text:SetWordWrap(true)
     help_text:SetJustifyH('LEFT')
