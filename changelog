@@ -1,4 +1,4 @@
-alpha:
+beta:
 * you can now specify mounts to use as ground, flying, aquatic or water
 walking - there are 4 separate lists to do so. Whether or not a mount actually
 fits into one of those lists is up to you; I no longer do any hard-to-maintain
@@ -8,6 +8,8 @@ currently exist in those categories.
 * you can specify mounts/spells with either name or spell ID
 * removed legacy support (mounting with an old-style macro - you can still
 mount with a /click macro)
+* you can now make a theoretically-unlimited number of sets, rather than just
+3. Which set is currently active is saved per character.
 
 Your old sets should be backed up and can be viewed in chat by typing:
 /mount dump-old
