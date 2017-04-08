@@ -223,7 +223,7 @@ end
 function opt:Populate()
     -- set dropdown ############################################################
     local dd_set = pcdd:New(opt,'Set')
-    dd_set:SetPoint('TOP',0,-20)
+    dd_set:SetPoint('TOPLEFT',10,-20)
     dd_set:SetFrameStrata('TOOLTIP')
     dd_set:SetHeight(20)
     dd_set.labelText:Hide()
