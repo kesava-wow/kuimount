@@ -262,6 +262,18 @@ function opt:Populate()
 
     self.dd_set = dd_set
 
+    -- delete set button #######################################################
+    local button_delete = CreateFrame('Button',nil,opt,'UIPanelButtonTemplate')
+    button_delete:SetText('Delete set')
+    button_delete:SetPoint('TOPRIGHT',-10,-10)
+    button_delete:SetSize(100,25)
+
+    button_delete:SetScript('OnClick',function(self)
+        -- delete the current set & switch to default
+        KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = nil
+        ActivateSet('default')
+    end)
+
     -- ground mounts edit box ##################################################
     local edit_ground = CreateEditBox('KuiMountGround',154,400)
     edit_ground.env_id = 1
