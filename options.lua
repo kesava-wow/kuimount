@@ -20,7 +20,7 @@ local function SetEditBoxToList(editbox,list)
 end
 local function SetValues()
     -- set interface state
-    opt.dd_set:SetValue(KuiMountCharacter.ActiveSet)
+    opt.dd_set:initialize()
 
     local set = ns:GetActiveSet()
     SetEditBoxToList(opt.edit_ground,set[1])
@@ -56,7 +56,7 @@ local function OnEditFocusLost(self)
 
     -- push new list to saved variable
     if not KuiMountCharacter.ActiveSet then
-        KuiMountCharacter.ActiveSet = 1
+        KuiMountCharacter.ActiveSet = 'default'
     end
     KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
 end
@@ -150,9 +150,10 @@ do
         end
     end
     local function OkayButtonOnClick(self)
-        opt.Popup:Hide()
         ns:NewSet(opt.Popup.editbox:GetText())
         ActivateSet(opt.Popup.editbox:GetText())
+
+        opt.Popup:Hide()
     end
     local function CancelButtonOnClick(self)
         opt.Popup:Hide()
@@ -227,7 +228,7 @@ function opt:Populate()
     dd_set:SetHeight(20)
     dd_set.labelText:Hide()
 
-    dd_set:HookScript('OnShow',function(self)
+    function dd_set:initialize()
         local list = {}
 
         -- new set button
@@ -246,7 +247,7 @@ function opt:Populate()
 
         self:SetList(list)
         self:SetValue(KuiMountCharacter.ActiveSet)
-    end)
+    end
     function dd_set:OnValueChanged(value,text)
         if value and value == 'new_set' then
             -- woo make a new set
@@ -256,6 +257,8 @@ function opt:Populate()
             ActivateSet(text)
         end
     end
+
+    dd_set:HookScript('OnShow',dd_set.initialize)
 
     self.dd_set = dd_set
 

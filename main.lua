@@ -95,7 +95,7 @@ end
 function ns:GetActiveSet()
     return KuiMountCharacter.ActiveSet and
            KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] or
-           KuiMountSaved.Sets[1]
+           KuiMountSaved.Sets['default']
 end
 local function DefaultSet()
     return {
@@ -243,19 +243,19 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 
             KuiMountSaved.Sets = nil
             KuiMountCharacter.list = nil
-            KuiMountCharacter.ActiveSet = 1
+            KuiMountCharacter.ActiveSet = 'default'
         end
 
         if not KuiMountSaved.Sets then
             KuiMountSaved.Sets = {
-                DefaultSet()
+                ['default'] = DefaultSet()
             }
         end
 
         -- character specific (active set)
         if not KuiMountCharacter then
             KuiMountCharacter = {}
-            KuiMountCharacter.ActiveSet = 1
+            KuiMountCharacter.ActiveSet = 'default'
         end
     end
 end)
