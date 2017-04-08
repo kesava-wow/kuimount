@@ -23,10 +23,10 @@ local function ActivateSet(set_id)
     KuiMountCharacter.ActiveSet = set_id
 
     local set = ns:GetActiveSet()
-    SetEditBoxToList(edit_ground,set[1])
-    SetEditBoxToList(edit_flying,set[2])
-    SetEditBoxToList(edit_aquatic,set[3])
-    SetEditBoxToList(edit_waterw,set[4])
+    SetEditBoxToList(opt.edit_ground,set[1])
+    SetEditBoxToList(opt.edit_flying,set[2])
+    SetEditBoxToList(opt.edit_aquatic,set[3])
+    SetEditBoxToList(opt.edit_waterw,set[4])
 end
 local function SetValues()
     -- set interface state
@@ -153,6 +153,11 @@ function opt:Populate()
     edit_waterw.env_id = 4
     edit_waterw.Scroll:SetPoint('TOPLEFT',edit_aquatic.Scroll,'BOTTOMLEFT',0,-50)
 
+    self.edit_ground = edit_ground
+    self.edit_flying = edit_flying
+    self.edit_aquatic = edit_aquatic
+    self.edit_waterw = edit_waterw
+
     -- titles ##################################################################
     local title_ground = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
     title_ground:SetPoint('BOTTOM',edit_ground.Backdrop,'TOP',0,5)
@@ -194,7 +199,10 @@ function opt:PopulateWrapper()
 end
 opt:SetScript('OnShow',function(self)
     self:PopulateWrapper()
-    SetValues()
+
+    if opt.initialised then
+        SetValues()
+    end
 end)
 
 --------------------------------------------------------------- Slash command --
@@ -222,6 +230,9 @@ function SlashCmdList.KUIMOUNT(msg)
     end
 
     opt:PopulateWrapper()
-    InterfaceOptionsFrame_OpenToCategory(category)
-    InterfaceOptionsFrame_OpenToCategory(category)
+
+    if opt.initialised or not InCombatLockdown() then
+        InterfaceOptionsFrame_OpenToCategory(category)
+        InterfaceOptionsFrame_OpenToCategory(category)
+    end
 end
