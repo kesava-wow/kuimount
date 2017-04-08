@@ -5,5 +5,7 @@
 ## SavedVariables: KuiMountSaved
 ## SavedVariablesPerCharacter: KuiMountCharacter
 
+lib\embeds.xml
+
 main.lua
 options.lua
