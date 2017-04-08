@@ -270,6 +270,7 @@ function opt:Populate()
 
     button_delete:SetScript('OnClick',function(self)
         -- delete the current set & switch to default
+        opt.dd_set.list:Hide()
         KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = nil
         ActivateSet('default')
     end)
