@@ -231,30 +231,38 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             KuiMountSaved = {}
         end
 
+        -- backup legacy variables and reset
         if KuiMountSaved.Sets and KuiMountSaved.Sets.One then
-            -- backup old saved variables and reset
             KuiMountSaved.OLD_SET_ONE = KuiMountSaved.Sets.One
             KuiMountSaved.OLD_SET_TWO = KuiMountSaved.Sets.Two
             KuiMountSaved.OLD_SET_THREE = KuiMountSaved.Sets.Three
 
-            if KuiMountCharacter and KuiMountCharacter.list then
-                KuiMountCharacter.OLD_SET_CHAR = KuiMountCharacter.list
-            end
-
             KuiMountSaved.Sets = nil
             KuiMountCharacter.list = nil
-            KuiMountCharacter.ActiveSet = 'default'
+
+            print('|cff9966ffKui Mount|r has been updated and reset. Your previous sets have been backed up and can be viewed by running:|n    /mount dump-old')
+        end
+        if KuiMountCharacter and KuiMountCharacter.list then
+            KuiMountCharacter.OLD_SET_CHAR = KuiMountCharacter.list
+            KuiMountCharacter.list = nil
         end
 
+        -- create default set list
         if not KuiMountSaved.Sets then
             KuiMountSaved.Sets = {
                 ['default'] = DefaultSet()
             }
         end
 
-        -- character specific (active set)
+        -- character specific
         if not KuiMountCharacter then
             KuiMountCharacter = {}
+        end
+
+        -- verify ActiveSet
+        if not KuiMountCharacter.ActiveSet or
+           not KuiMountSaved.Sets[KuiMountCharacter.ActiveSet]
+        then
             KuiMountCharacter.ActiveSet = 'default'
         end
     end

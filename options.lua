@@ -350,11 +350,11 @@ end)
 SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
 
-local function DumpOldSet(set)
+local function DumpOldSet(name,set)
     if not set then return end
     local t
     for k,v in pairs(set) do
-        t = t and t..', '..k or k..', '
+        t = t and t..', '..k or name..': '..k
     end
     print(t)
 end
@@ -363,10 +363,10 @@ function SlashCmdList.KUIMOUNT(msg)
         ns.debug = not ns.debug
         return
     elseif msg == 'dump-old' then
-        DumpOldSet(KuiMountSaved.OLD_SET_ONE)
-        DumpOldSet(KuiMountSaved.OLD_SET_TWO)
-        DumpOldSet(KuiMountSaved.OLD_SET_THREE)
-        DumpOldSet(KuiMountCharacter.OLD_SET_CHAR)
+        DumpOldSet('One',KuiMountSaved.OLD_SET_ONE)
+        DumpOldSet('Two',KuiMountSaved.OLD_SET_TWO)
+        DumpOldSet('Three',KuiMountSaved.OLD_SET_THREE)
+        DumpOldSet('Char',KuiMountCharacter.OLD_SET_CHAR)
         return
     end
 
