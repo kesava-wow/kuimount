@@ -7,6 +7,7 @@ local select, strfind, strlower, tonumber, tinsert
 local _,i,x
 local SecureButton
 
+-- TODO use zone IDs or something
 local swimZones = {
     ['Vashj\'ir'] = true,
     ['Ruins of Vashj\'ir'] = true,
@@ -143,8 +144,15 @@ local function Mount()
     -- the whitelist if none were found)
     local usable_mounts, usable_mounts_wl = {},{}
     for name,mount_id in pairs(collected_mounts_by_name) do
-        local _,spellid,_,_,usable = C_MountJournal.GetMountInfoByID(mount_id)
-        if usable then
+        local spellid,_,_,usable =
+            select(2,C_MountJournal.GetMountInfoByID(mount_id))
+        local mountType =
+            select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
+
+        if  usable and IsUsableSpell(spellid) and (
+            (useFlying and (mountType == 248 or mountType == 247)) or
+            not useFlying)
+        then
             tinsert(usable_mounts,spellid)
 
             if list[name] or list[spellid] then
@@ -169,11 +177,20 @@ local function Mount()
         usable_mounts = usable_mounts_wl
     end
 
+    if ns.debug then
+        print('compacted '..#usable_mounts..' to '..#usable_mounts_wl)
+    end
+
     -- select random usable mount
     if #usable_mounts > 0 then
         local spell_name = GetSpellInfo(
             usable_mounts[math.random(1,#usable_mounts)]
         )
+
+        if ns.debug then
+            print('selected: '..spell_name)
+            print(IsUsableSpell(spell_name))
+        end
 
         SecureButton:SetAttribute('macrotext','/cast '..spell_name)
     else
