@@ -237,7 +237,9 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
         end
 
         -- backup legacy variables and reset
-        if KuiMountSaved.Sets and KuiMountSaved.Sets.One then
+        if  KuiMountSaved.Sets and KuiMountSaved.Sets.One and
+            type(KuiMountSaved.Sets.One[4]) ~= 'table'
+        then
             KuiMountSaved.OLD_SET_ONE = KuiMountSaved.Sets.One
             KuiMountSaved.OLD_SET_TWO = KuiMountSaved.Sets.Two
             KuiMountSaved.OLD_SET_THREE = KuiMountSaved.Sets.Three
