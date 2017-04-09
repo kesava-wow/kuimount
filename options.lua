@@ -358,6 +358,10 @@ local function DumpOldSet(name,set)
     local t
     for k,v in pairs(set) do
         t = t and t..', '..k or '|cffffff88'..name..'|r: '..k
+        if strlen(t) > 250 then
+            print(t)
+            t = nil
+        end
     end
     if t then
         print(t)
