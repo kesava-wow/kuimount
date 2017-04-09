@@ -1,4 +1,9 @@
 beta 09-04:
+* REALLY correctly backup legacy character specific set
+* fix selects faction-specific mounts and profession-specific mounts which
+can't currently be used
+* fix selects ground-only mounts in flyable areas with a blank whitelist
+
 * there is now a warning in chat when old saved variables are backed up
 * correctly backup character specific set on every character
 * correctly reset ActiveSet to default
