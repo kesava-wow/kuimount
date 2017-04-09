@@ -1,4 +1,12 @@
-beta:
+beta 09-04:
+* there is now a warning in chat when old saved variables are backed up
+* correctly backup character specific set on every character
+* correctly reset ActiveSet to default
+* improve output of dump-old
+* fix lua error when deleting a set before using the set dropdown list
+* remove some unused variables
+
+beta 08-04:
 * you can now specify mounts to use as ground, flying, aquatic or water
 walking - there are 4 separate lists to do so. Whether or not a mount actually
 fits into one of those lists is up to you; I no longer do any hard-to-maintain
