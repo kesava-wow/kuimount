@@ -233,9 +233,7 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             KuiMountSaved.OLD_SET_ONE = KuiMountSaved.Sets.One
             KuiMountSaved.OLD_SET_TWO = KuiMountSaved.Sets.Two
             KuiMountSaved.OLD_SET_THREE = KuiMountSaved.Sets.Three
-
             KuiMountSaved.Sets = nil
-            KuiMountCharacter.list = nil
 
             RESET_WARN = true
         end
