@@ -7,8 +7,6 @@ local select, strfind, strlower, tonumber, tinsert
 local _,i,x
 local SecureButton
 
-local MOUNT_IDS
-
 local swimZones = {
     ['Vashj\'ir'] = true,
     ['Ruins of Vashj\'ir'] = true,
@@ -51,23 +49,19 @@ ns.f = CreateFrame('Frame', KuiMountFrame)
 
 -- mount collection functions ##################################################
 local collected_mounts_by_name = {}
-local collected_mounts_by_spellid = {}
 local known_spellid_mounts = {}
 local num_mounts = 0
 function ns:GetMounts()
-    -- generate list of mounts by spell id => id, name => id
+    -- generate list of mounts by name => id
     wipe(collected_mounts_by_name)
-    wipe(collected_mounts_by_spellid)
     num_mounts = 0
 
     for k,i in ipairs(C_MountJournal.GetMountIDs()) do
-        local name,spellid,icon,active,usable,sourceType,isFavorite,
-              isFactionSpecific,faction,isFiltered,isCollected,mountID =
+        local name,_,_,_,_,_,_,_,_,_,isCollected,mountID =
               C_MountJournal.GetMountInfoByID(i)
 
         if isCollected then
             collected_mounts_by_name[strlower(name)] = mountID
-            collected_mounts_by_spellid[spellid] = mountID
             num_mounts = num_mounts + 1
         end
     end
@@ -82,9 +76,8 @@ function ns:GetMounts()
         end
     end
 end
-function ns:GetMountID(name_or_spellid)
-    return collected_mounts_by_spellid[name_or_spellid] or
-           collected_mounts_by_name[name_or_spellid] or
+function ns:GetMountID(name)
+    return collected_mounts_by_name[name] or
            nil
 end
 function ns:GetNumKnownMounts()
@@ -217,9 +210,6 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
         -- update mount list upon learning new mounts or zoning
         ns:GetMounts()
     elseif event == 'PLAYER_LOGIN' then
-        MOUNT_IDS = C_MountJournal.GetMountIDs()
-        ns.MOUNT_IDS = MOUNT_IDS
-
         if RESET_WARN then
             print('|cff9966ffKui Mount|r has been updated and reset. Your previous sets have been backed up and can be viewed by running:|n/mount dump-old')
         end
