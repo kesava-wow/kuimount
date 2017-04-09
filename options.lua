@@ -354,9 +354,13 @@ local function DumpOldSet(name,set)
     if not set then return end
     local t
     for k,v in pairs(set) do
-        t = t and t..', '..k or name..': '..k
+        t = t and t..', '..k or '|cffffff88'..name..'|r: '..k
     end
-    print(t)
+    if t then
+        print(t)
+    else
+        print('|cffffff88'..name..'|r: no data')
+    end
 end
 function SlashCmdList.KUIMOUNT(msg)
     if msg == 'debug' then

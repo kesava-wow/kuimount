@@ -211,6 +211,7 @@ local function ButtonPreClick(self)
 end
 
 -- events ----------------------------------------------------------------------
+local RESET_WARN
 ns.f:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
         -- update mount list upon learning new mounts or zoning
@@ -218,6 +219,10 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
     elseif event == 'PLAYER_LOGIN' then
         MOUNT_IDS = C_MountJournal.GetMountIDs()
         ns.MOUNT_IDS = MOUNT_IDS
+
+        if RESET_WARN then
+            print('|cff9966ffKui Mount|r has been updated and reset. Your previous sets have been backed up and can be viewed by running:|n/mount dump-old')
+        end
     elseif event == 'ADDON_LOADED' then
         if ... ~= addon then return end
 
@@ -240,11 +245,13 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             KuiMountSaved.Sets = nil
             KuiMountCharacter.list = nil
 
-            print('|cff9966ffKui Mount|r has been updated and reset. Your previous sets have been backed up and can be viewed by running:|n    /mount dump-old')
+            RESET_WARN = true
         end
         if KuiMountCharacter and KuiMountCharacter.list then
             KuiMountCharacter.OLD_SET_CHAR = KuiMountCharacter.list
             KuiMountCharacter.list = nil
+
+            RESET_WARN = true
         end
 
         -- create default set list
