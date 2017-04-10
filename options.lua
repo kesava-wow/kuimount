@@ -62,8 +62,8 @@ local function OnEditFocusLost(self)
 end
 
 -- config element helpers ######################################################
-local function CreateEditBox(name, width, height)
-    local box = CreateFrame('EditBox', name..'EditBox', opt)
+local function CreateEditBox(name, width, height, parent)
+    local box = CreateFrame('EditBox', name..'EditBox', parent or opt)
     box:SetMultiLine(true)
     box:SetAutoFocus(false)
     box:SetFontObject(ChatFontNormal)
@@ -73,7 +73,7 @@ local function CreateEditBox(name, width, height)
     box:SetScript('OnEscapePressed',OnEscapePressed)
     box:SetScript('OnEditFocusLost',OnEditFocusLost)
 
-    local scroll = CreateFrame('ScrollFrame', name..'ScrollFrame', opt, 'UIPanelScrollFrameTemplate')
+    local scroll = CreateFrame('ScrollFrame', name..'ScrollFrame', parent or opt, 'UIPanelScrollFrameTemplate')
     scroll:SetSize(width, height)
     scroll:SetScrollChild(box)
 
@@ -81,7 +81,7 @@ local function CreateEditBox(name, width, height)
         self:GetScrollChild():SetFocus()
     end)
 
-    local bg = CreateFrame('Frame', nil, opt)
+    local bg = CreateFrame('Frame', nil, parent or opt)
     bg:SetBackdrop({
         bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
         edgeFile = 'Interface\\Tooltips\\UI-Tooltip-border',
@@ -353,31 +353,57 @@ end)
 SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
 
+local old_set_editbox
 local function DumpOldSet(name,set)
-    if not set then return end
-    local t
+    if not set or not old_set_editbox then return end
+
+    old_set_editbox:SetText(old_set_editbox:GetText()..'|cffffff88'..name..'|r|n')
+
+    local i = 0
     for k,v in pairs(set) do
-        t = t and t..', '..k or '|cffffff88'..name..'|r: '..k
-        if strlen(t) > 250 then
-            print(t)
-            t = nil
-        end
+        i = i + 1
+        old_set_editbox:SetText(old_set_editbox:GetText()..k..'|n')
     end
-    if t then
-        print(t)
-    else
-        print('|cffffff88'..name..'|r: no data')
+
+    if i == 0 then
+        old_set_editbox:SetText(old_set_editbox:GetText()..'No data|n')
     end
+
+    old_set_editbox:SetText(old_set_editbox:GetText()..'|n')
 end
 function SlashCmdList.KUIMOUNT(msg)
     if msg == 'debug' then
         ns.debug = not ns.debug
         return
     elseif msg == 'dump-old' then
+        if not old_set_editbox then
+            old_set_editbox = CreateEditBox('KuiMountOldSet',250,600,UIParent)
+            old_set_editbox:SetFrameStrata('DIALOG')
+            old_set_editbox.Scroll:SetFrameStrata('DIALOG')
+            old_set_editbox.Scroll:SetPoint('CENTER')
+            old_set_editbox.Backdrop:SetFrameStrata('DIALOG')
+            old_set_editbox.Backdrop:SetBackdropColor(.1,.1,.1,.8)
+
+            old_set_editbox:SetScript('OnEscapePressed',function(self)
+                self:ClearFocus()
+                self:Hide()
+                self.Scroll:Hide()
+                self.Backdrop:Hide()
+            end)
+        else
+            old_set_editbox:SetText('')
+        end
+
         DumpOldSet('One',KuiMountSaved.OLD_SET_ONE)
         DumpOldSet('Two',KuiMountSaved.OLD_SET_TWO)
         DumpOldSet('Three',KuiMountSaved.OLD_SET_THREE)
         DumpOldSet('Char',KuiMountCharacter.OLD_SET_CHAR)
+
+        old_set_editbox.Backdrop:Show()
+        old_set_editbox.Scroll:Show()
+        old_set_editbox:Show()
+        old_set_editbox:SetFocus()
+
         return
     end
 
