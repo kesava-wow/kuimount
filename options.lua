@@ -390,11 +390,17 @@ local function MountJournalUpdateButtons()
     end
 end
 local function MountJournalButtonOnClick(self,button)
-    -- highlight parent
-    self:GetParent():Click()
+    if self:GetChecked() then
+        PlaySound("igMainMenuOptionCheckBoxOn")
+    else
+        PlaySound("igMainMenuOptionCheckBoxOff")
+    end
 
     local name = self:GetParent().name:GetText()
     if not name then return end
+
+    -- highlight parent
+    self:GetParent():Click()
 
     name = strlower(name)
     if ns:GetCollectedMountID(name) then
