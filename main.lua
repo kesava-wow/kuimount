@@ -48,6 +48,12 @@ local spellIdMounts = {
 
 ns.f = CreateFrame('Frame', KuiMountFrame)
 
+-- list ID enums
+ns.LIST_GROUND = 1
+ns.LIST_FLY = 2
+ns.LIST_AQUATIC = 3
+ns.LIST_WATERWALK = 4
+
 -- mount collection functions ##################################################
 local collected_mounts_by_name = {}
 local known_spellid_mounts = {}
@@ -113,6 +119,10 @@ function ns:NewSet(id)
     -- create or reset given set id
     if not id then return end
     KuiMountSaved.Sets[id] = DefaultSet()
+end
+
+local function IsInActiveList(list_id,name)
+    return ns:GetActiveSet()[list_id][name] and true or nil
 end
 
 -- mounting functions ##########################################################
@@ -221,34 +231,73 @@ local function ButtonPreClick(self)
 end
 
 -- mount journal button functions ##############################################
+local function MountJournalItemUpdateButtons(item)
+    if not item then return end
+
+    item.KuiMountGround:Hide()
+    item.KuiMountFlying:Hide()
+
+    local name = item.name and item.name:GetText()
+    if name then
+        name = strlower(name)
+    else
+        return
+    end
+
+    local mount_id = collected_mounts_by_name[name]
+    if mount_id then
+        if IsInActiveList(ns.LIST_GROUND,name) then
+            item.KuiMountGround:SetChecked(true)
+        else
+            item.KuiMountGround:SetChecked(false)
+        end
+        item.KuiMountGround:Show()
+
+        local mountType = select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
+        if mountType == 248 or mountType == 247 then
+            -- flying mount; show flying check box
+            if IsInActiveList(ns.LIST_FLY,name) then
+                item.KuiMountFlying:SetChecked(true)
+            else
+                item.KuiMountFlying:SetChecked(false)
+            end
+            item.KuiMountFlying:Show()
+        end
+    end
+end
+
+local function MountJournalUpdateButtons()
+    for i=1,12 do
+        MountJournalItemUpdateButtons(_G['MountJournalListScrollFrameButton'..i])
+    end
+end
+
 local function MountJournalButtonOnClick(self,button)
+    -- highlight parent
+    self:GetParent():Click()
+
     local name = self:GetParent().name:GetText()
     if not name then return end
 
     name = strlower(name)
     if collected_mounts_by_name[name] then
         local set = ns:GetActiveSet()
-        set[self.env][name] = true
+
+        if (self.env == ns.LIST_GROUND and IsInActiveList(ns.LIST_GROUND,name)) or
+           (self.env == ns.LIST_FLY and IsInActiveList(ns.LIST_FLY,name))
+        then
+            set[self.env][name] = nil
+        else
+            set[self.env][name] = true
+        end
 
         -- push to saved var
         KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
     end
+
+    MountJournalItemUpdateButtons(self:GetParent())
 end
 
-local function MountJournalUpdateButtons()
-    for i=1,12 do
-        local item = _G['MountJournalListScrollFrameButton'..i]
-        local name = item.name:GetText()
-
-        if name and collected_mounts_by_name[strlower(name)] then
-            item.KuiMountGround:Enable()
-            item.KuiMountFlying:Enable()
-        else
-            item.KuiMountGround:Disable()
-            item.KuiMountFlying:Disable()
-        end
-    end
-end
 
 local mount_journal_hooked
 local function HookMountJournal()
@@ -263,26 +312,31 @@ local function HookMountJournal()
     for i=1,12 do
         local item = _G['MountJournalListScrollFrameButton'..i]
 
-        local btn_gnd = CreateFrame('Button',nil,item,'UIPanelButtonTemplate')
-        btn_gnd.env = 1
-        btn_gnd:SetText('g')
-        btn_gnd:SetSize(30,20)
-        btn_gnd:SetPoint('BOTTOMRIGHT',-3,3)
-        btn_gnd.tooltipText = 'Kui Mount|nAdd to Flying list'
+        local btn_gnd = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
+        btn_gnd.env = ns.LIST_GROUND
+        btn_gnd:SetPoint('TOPRIGHT',-1,-1)
         btn_gnd:SetScript('OnClick',MountJournalButtonOnClick)
 
-        local btn_fly = CreateFrame('Button',nil,item,'UIPanelButtonTemplate')
-        btn_fly.env = 2
-        btn_fly:SetText('f')
-        btn_fly:SetSize(30,20)
-        btn_fly:SetPoint('TOPRIGHT',-3,-3)
-        btn_fly.tooltipText = 'Kui Mount|nAdd to Ground list'
+        btn_gnd.label = btn_gnd:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
+        btn_gnd.label:SetAlpha(.7)
+        btn_gnd.label:SetText('Gnd')
+        btn_gnd.label:SetPoint('RIGHT',btn_gnd,'LEFT')
+
+        local btn_fly = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
+        btn_fly.env = ns.LIST_FLY
+        btn_fly:SetPoint('BOTTOMRIGHT',-1,1)
         btn_fly:SetScript('OnClick',MountJournalButtonOnClick)
+
+        btn_fly.label = btn_fly:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
+        btn_fly.label:SetAlpha(.7)
+        btn_fly.label:SetText('Fly')
+        btn_fly.label:SetPoint('RIGHT',btn_fly,'LEFT')
 
         item.KuiMountGround = btn_gnd
         item.KuiMountFlying = btn_fly
     end
 
+    MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
     MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
     MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
 end
