@@ -220,6 +220,73 @@ local function ButtonPreClick(self)
     Mount()
 end
 
+-- mount journal button functions ##############################################
+local function MountJournalButtonOnClick(self,button)
+    local name = self:GetParent().name:GetText()
+    if not name then return end
+
+    name = strlower(name)
+    if collected_mounts_by_name[name] then
+        local set = ns:GetActiveSet()
+        set[self.env][name] = true
+
+        -- push to saved var
+        KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
+    end
+end
+
+local function MountJournalUpdateButtons()
+    for i=1,12 do
+        local item = _G['MountJournalListScrollFrameButton'..i]
+        local name = item.name:GetText()
+
+        if name and collected_mounts_by_name[strlower(name)] then
+            item.KuiMountGround:Enable()
+            item.KuiMountFlying:Enable()
+        else
+            item.KuiMountGround:Disable()
+            item.KuiMountFlying:Disable()
+        end
+    end
+end
+
+local mount_journal_hooked
+local function HookMountJournal()
+    if mount_journal_hooked then return end
+    mount_journal_hooked = true
+
+    if not MountJournal or not MountJournalListScrollFrameButton1 then
+        error('MountJournal was expected, is nil')
+        return
+    end
+
+    for i=1,12 do
+        local item = _G['MountJournalListScrollFrameButton'..i]
+
+        local btn_gnd = CreateFrame('Button',nil,item,'UIPanelButtonTemplate')
+        btn_gnd.env = 1
+        btn_gnd:SetText('g')
+        btn_gnd:SetSize(30,20)
+        btn_gnd:SetPoint('BOTTOMRIGHT',-3,3)
+        btn_gnd.tooltipText = 'Kui Mount|nAdd to Flying list'
+        btn_gnd:SetScript('OnClick',MountJournalButtonOnClick)
+
+        local btn_fly = CreateFrame('Button',nil,item,'UIPanelButtonTemplate')
+        btn_fly.env = 2
+        btn_fly:SetText('f')
+        btn_fly:SetSize(30,20)
+        btn_fly:SetPoint('TOPRIGHT',-3,-3)
+        btn_fly.tooltipText = 'Kui Mount|nAdd to Ground list'
+        btn_fly:SetScript('OnClick',MountJournalButtonOnClick)
+
+        item.KuiMountGround = btn_gnd
+        item.KuiMountFlying = btn_fly
+    end
+
+    MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
+    MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
+end
+
 -- events ----------------------------------------------------------------------
 local RESET_WARN
 ns.f:SetScript('OnEvent', function(self, event, ...)
@@ -231,7 +298,15 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             print('|cff9966ffKui Mount|r has been updated and reset. Your previous sets have been backed up and can be viewed by running:|n/mount dump-old')
         end
     elseif event == 'ADDON_LOADED' then
-        if ... ~= addon then return end
+        if ... == 'Blizzard_Collections' then
+            HookMountJournal()
+            return
+        elseif ... ~= addon then return end
+
+        if MountJournal then
+            -- Blizzard_Collections is already loaded
+            HookMountJournal()
+        end
 
         SecureButton = CreateFrame("Button", 'KuiMountSecureButton', UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
         SecureButton:SetAttribute('type','macro')

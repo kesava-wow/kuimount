@@ -1,6 +1,8 @@
 beta 11-04:
 * /mount dump-old now opens an edit box from which you can copy your old sets
 into the new edit boxes, rather than having to do it all manually.
+* add (early) buttons to default mount journal interface to add mounts to the
+ground/flying lists
 
 beta 09-04:
 * REALLY correctly backup legacy character specific set
