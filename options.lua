@@ -19,9 +19,18 @@ local function SetEditBoxToList(editbox,list)
     editbox:SetText(text or '')
 end
 local function SetValues()
-    -- set interface state
+    -- update mount journal checkboxes
+    if MountJournal and
+       MountJournal:IsShown() and
+       MountJournal.KuiMountUpdateDisplay
+    then
+        -- XXX and profile dropdown
+        MountJournal:KuiMountUpdateDisplay()
+    end
+
     if not opt.initialised then return end
 
+    -- set opt interface state
     opt.dd_set:initialize()
 
     local set = ns:GetActiveSet()
@@ -433,6 +442,8 @@ function ns:HookMountJournal()
     MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
     MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
     MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
+
+    MountJournal.KuiMountUpdateDisplay = MountJournalUpdateButtons
 end
 
 --------------------------------------------------------------- Slash command --
