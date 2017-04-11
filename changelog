@@ -1,3 +1,6 @@
+beta 12-04:
+* change mount journal buttons to checkboxes and make them look (and work) better
+
 beta 11-04:
 * /mount dump-old now opens an edit box from which you can copy your old sets
 into the new edit boxes, rather than having to do it all manually.
