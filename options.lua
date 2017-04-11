@@ -349,6 +349,113 @@ opt:SetScript('OnShow',function(self)
     end
 end)
 
+-- mount journal hooking #######################################################
+local function MountJournalItemUpdateButtons(item)
+    if not item then return end
+
+    item.KuiMountGround:Hide()
+    item.KuiMountFlying:Hide()
+
+    local name = item.name and item.name:GetText()
+    if name then
+        name = strlower(name)
+    else
+        return
+    end
+
+    local mount_id = ns:GetCollectedMountID(name)
+    if mount_id then
+        if ns:IsInActiveList(ns.LIST_GROUND,name) then
+            item.KuiMountGround:SetChecked(true)
+        else
+            item.KuiMountGround:SetChecked(false)
+        end
+        item.KuiMountGround:Show()
+
+        local mountType = select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
+        if mountType == 248 or mountType == 247 then
+            -- flying mount; show flying check box
+            if ns:IsInActiveList(ns.LIST_FLY,name) then
+                item.KuiMountFlying:SetChecked(true)
+            else
+                item.KuiMountFlying:SetChecked(false)
+            end
+            item.KuiMountFlying:Show()
+        end
+    end
+end
+local function MountJournalUpdateButtons()
+    for i=1,12 do
+        MountJournalItemUpdateButtons(_G['MountJournalListScrollFrameButton'..i])
+    end
+end
+local function MountJournalButtonOnClick(self,button)
+    -- highlight parent
+    self:GetParent():Click()
+
+    local name = self:GetParent().name:GetText()
+    if not name then return end
+
+    name = strlower(name)
+    if ns:GetCollectedMountID(name) then
+        local set = ns:GetActiveSet()
+
+        if (self.env == ns.LIST_GROUND and ns:IsInActiveList(ns.LIST_GROUND,name)) or
+           (self.env == ns.LIST_FLY and ns:IsInActiveList(ns.LIST_FLY,name))
+        then
+            set[self.env][name] = nil
+        else
+            set[self.env][name] = true
+        end
+
+        -- push to saved var
+        KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
+    end
+
+    MountJournalItemUpdateButtons(self:GetParent())
+end
+
+function ns:HookMountJournal()
+    if MountJournal.KuiMountHooked then return end
+    MountJournal.KuiMountHooked = true
+
+    if not MountJournal or not MountJournalListScrollFrameButton1 then
+        error('MountJournal was expected, is nil')
+        return
+    end
+
+    for i=1,12 do
+        local item = _G['MountJournalListScrollFrameButton'..i]
+
+        local btn_gnd = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
+        btn_gnd.env = ns.LIST_GROUND
+        btn_gnd:SetPoint('TOPRIGHT',-1,-1)
+        btn_gnd:SetScript('OnClick',MountJournalButtonOnClick)
+
+        btn_gnd.label = btn_gnd:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
+        btn_gnd.label:SetAlpha(.7)
+        btn_gnd.label:SetText('Gnd')
+        btn_gnd.label:SetPoint('RIGHT',btn_gnd,'LEFT')
+
+        local btn_fly = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
+        btn_fly.env = ns.LIST_FLY
+        btn_fly:SetPoint('BOTTOMRIGHT',-1,1)
+        btn_fly:SetScript('OnClick',MountJournalButtonOnClick)
+
+        btn_fly.label = btn_fly:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
+        btn_fly.label:SetAlpha(.7)
+        btn_fly.label:SetText('Fly')
+        btn_fly.label:SetPoint('RIGHT',btn_fly,'LEFT')
+
+        item.KuiMountGround = btn_gnd
+        item.KuiMountFlying = btn_fly
+    end
+
+    MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
+    MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
+    MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
+end
+
 --------------------------------------------------------------- Slash command --
 SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
