@@ -20,6 +20,8 @@ local function SetEditBoxToList(editbox,list)
 end
 local function SetValues()
     -- set interface state
+    if not opt.initialised then return end
+
     opt.dd_set:initialize()
 
     local set = ns:GetActiveSet()
@@ -98,41 +100,10 @@ local function CreateEditBox(name, width, height, parent)
 
     return box
 end
-local function CreateCheckBox(name, desc, accountWide, callback)
-    local check = CreateFrame('CheckButton', 'KuiMount'..name..'Check', opt, 'OptionsBaseCheckButtonTemplate')
-
-    check.env = name
-
-    check:SetScript('OnClick', function(self)
-        local env = (accountWide or accountWide == nil) and
-                    KuiMountSaved or KuiMountCharacter
-
-        -- prevent losing changes if the checkbox is clicked before focus
-        -- is cleared from an editbox
-        preferedBox:ClearFocus()
-
-        if self:GetChecked() then
-            PlaySound("igMainMenuOptionCheckBoxOn")
-            env[self.env] = true
-        else
-            PlaySound("igMainMenuOptionCheckBoxOff")
-            env[self.env] = false
-        end
-
-        if callback then
-            callback(self)
-        end
-    end)
-
-    check.desc = opt:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
-    check.desc:SetText(desc)
-    check.desc:SetPoint('LEFT', check, 'RIGHT')
-
-    return check
-end
 
 -- new set popup ##############################################################
 -- shares code from Kui_Nameplates_Core_Config/helpers.lua:CreatePopup et al
+local CreateNewSetPopUp
 do
     local function PopupOnShow(self)
         self.editbox:SetText('')
@@ -150,17 +121,17 @@ do
         end
     end
     local function OkayButtonOnClick(self)
-        ns:NewSet(opt.Popup.editbox:GetText())
-        ActivateSet(opt.Popup.editbox:GetText())
+        ns:NewSet(self:GetParent().editbox:GetText())
+        ActivateSet(self:GetParent().editbox:GetText())
 
-        opt.Popup:Hide()
+        self:GetParent():Hide()
     end
     local function CancelButtonOnClick(self)
-        opt.Popup:Hide()
+        self:GetParent():Hide()
         SetValues()
     end
-    function opt:CreateNewSetPopUp()
-        local popup = CreateFrame('Frame',nil,self)
+    function CreateNewSetPopUp(parent)
+        local popup = CreateFrame('Frame',nil,parent)
         popup:SetBackdrop({
             bgFile='interface/dialogframe/ui-dialogbox-background',
             edgeFile='interface/dialogframe/ui-dialogbox-border',
@@ -212,10 +183,10 @@ do
         okay:SetScript('OnClick',OkayButtonOnClick)
         cancel:SetScript('OnClick',CancelButtonOnClick)
 
-        self.Popup = popup
+        parent.KuiMountPopup = popup
 
-        opt:HookScript('OnHide',function(self)
-            self.Popup:Hide()
+        parent:HookScript('OnHide',function(self)
+            self.KuiMountPopup:Hide()
         end)
     end
 end
@@ -251,7 +222,7 @@ function opt:Populate()
     function dd_set:OnValueChanged(value,text)
         if value and value == 'new_set' then
             -- woo make a new set
-            opt.Popup:Show()
+            opt.KuiMountPopup:Show()
             return
         else
             ActivateSet(text)
@@ -327,7 +298,7 @@ function opt:Populate()
     help_text:SetJustifyH('LEFT')
     help_text:SetJustifyV('TOP')
 
-    self:CreateNewSetPopUp()
+    CreateNewSetPopUp(self)
 
     self.initialised = true
 end
@@ -456,6 +427,8 @@ function ns:HookMountJournal()
         item.KuiMountGround = btn_gnd
         item.KuiMountFlying = btn_fly
     end
+
+    CreateNewSetPopUp(MountJournal)
 
     MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
     MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
