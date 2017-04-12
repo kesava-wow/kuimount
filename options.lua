@@ -22,11 +22,7 @@ local function SetEditBoxToList(editbox,list)
 end
 local function SetValues()
     -- update mount journal interface elements
-    if MountJournal and
-       MountJournal:IsShown() and
-       MountJournal.KuiMountUpdateDisplay
-    then
-        MountJournal.KuiMountSetDropDown:initialize()
+    if ns.MountJournalHooked then
         MountJournal:KuiMountUpdateDisplay()
     end
 
@@ -74,10 +70,7 @@ local function OnEditFocusLost(self)
     KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
 
     -- update mount journal checkboxes
-    if MountJournal and
-       MountJournal:IsShown() and
-       MountJournal.KuiMountUpdateDisplay
-    then
+    if ns.MountJournalHooked then
         MountJournal:KuiMountUpdateDisplay()
     end
 end
@@ -271,8 +264,7 @@ do
             opt.dd_set.list:Hide()
         end
 
-        if MountJournal and
-           MountJournal.KuiMountSetDropDown and
+        if ns.MountJournalHooked and
            MountJournal.KuiMountSetDropDown.list
         then
             MountJournal.KuiMountSetDropDown.list:Hide()
@@ -325,8 +317,11 @@ do
             end
         end
     end
-    local function MountJournalUpdateButtons()
+    local function MountJournalUpdateDisplay()
         if not MountJournal:IsShown() then return end
+
+        MountJournal.KuiMountSetDropDown:initialize()
+
         for i=1,12 do
             MountJournalItemUpdateButtons(_G['MountJournalListScrollFrameButton'..i])
         end
@@ -420,14 +415,14 @@ do
         button_delete:SetSize(80,25)
         button_delete:SetText('Delete set')
 
-        MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
-        MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
-        MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
+        MountJournal:HookScript('OnShow',MountJournalUpdateDisplay)
+        MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateDisplay)
+        MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateDisplay)
 
-        MountJournal.KuiMountUpdateDisplay = MountJournalUpdateButtons
+        MountJournal.KuiMountUpdateDisplay = MountJournalUpdateDisplay
 
         -- update upon searching/filtering
-        hooksecurefunc("MountJournal_UpdateMountDisplay",MountJournalUpdateButtons)
+        hooksecurefunc("MountJournal_UpdateMountDisplay",MountJournalUpdateDisplay)
     end
 end
 -- populate config page ########################################################
