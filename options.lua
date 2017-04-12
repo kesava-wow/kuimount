@@ -366,6 +366,30 @@ do
 
         MountJournalItemUpdateButtons(self:GetParent())
     end
+    local function MountJournalCreateListItemCheckboxes(item)
+        local btn_gnd = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
+        btn_gnd.env = ns.LIST_GROUND
+        btn_gnd:SetPoint('TOPRIGHT',-1,-1)
+        btn_gnd:SetScript('OnClick',MountJournalButtonOnClick)
+
+        btn_gnd.label = btn_gnd:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
+        btn_gnd.label:SetAlpha(.7)
+        btn_gnd.label:SetText('Gnd')
+        btn_gnd.label:SetPoint('RIGHT',btn_gnd,'LEFT')
+
+        local btn_fly = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
+        btn_fly.env = ns.LIST_FLY
+        btn_fly:SetPoint('BOTTOMRIGHT',-1,1)
+        btn_fly:SetScript('OnClick',MountJournalButtonOnClick)
+
+        btn_fly.label = btn_fly:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
+        btn_fly.label:SetAlpha(.7)
+        btn_fly.label:SetText('Fly')
+        btn_fly.label:SetPoint('RIGHT',btn_fly,'LEFT')
+
+        item.KuiMountGround = btn_gnd
+        item.KuiMountFlying = btn_fly
+    end
 
     function ns:HookMountJournal()
         assert(MountJournal)
@@ -376,30 +400,9 @@ do
 
         -- create checkboxes on list items
         for i=1,12 do
-            local item = _G['MountJournalListScrollFrameButton'..i]
-
-            local btn_gnd = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
-            btn_gnd.env = ns.LIST_GROUND
-            btn_gnd:SetPoint('TOPRIGHT',-1,-1)
-            btn_gnd:SetScript('OnClick',MountJournalButtonOnClick)
-
-            btn_gnd.label = btn_gnd:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
-            btn_gnd.label:SetAlpha(.7)
-            btn_gnd.label:SetText('Gnd')
-            btn_gnd.label:SetPoint('RIGHT',btn_gnd,'LEFT')
-
-            local btn_fly = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
-            btn_fly.env = ns.LIST_FLY
-            btn_fly:SetPoint('BOTTOMRIGHT',-1,1)
-            btn_fly:SetScript('OnClick',MountJournalButtonOnClick)
-
-            btn_fly.label = btn_fly:CreateFontString(nil,'ARTWORK','GameFontHighlightSmall')
-            btn_fly.label:SetAlpha(.7)
-            btn_fly.label:SetText('Fly')
-            btn_fly.label:SetPoint('RIGHT',btn_fly,'LEFT')
-
-            item.KuiMountGround = btn_gnd
-            item.KuiMountFlying = btn_fly
+            MountJournalCreateListItemCheckboxes(
+                _G['MountJournalListScrollFrameButton'..i]
+            )
         end
 
         -- set dropdown
