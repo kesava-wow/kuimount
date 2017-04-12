@@ -1,4 +1,8 @@
 beta 12-04:
+* correctly update mount journal checkboxes upon searching & filtering
+* sort set dropdown list alphabetically
+* fix nil error when deleting sets from the mounr journal
+
 * change mount journal buttons to checkboxes and make them look (and work) better
 * add a set selector and delete set button to the mount journal
 
