@@ -243,13 +243,6 @@ local function CreateProfileDropDown(parent)
 end
 -- populate config page ########################################################
 function opt:Populate()
-    -- set dropdown ############################################################
-    local dd_set = CreateProfileDropDown(opt)
-    dd_set:SetPoint('TOPLEFT',10,-20)
-    dd_set.labelText:Hide()
-
-    self.dd_set = dd_set
-
     -- delete set button #######################################################
     local button_delete = CreateFrame('Button',nil,opt,'UIPanelButtonTemplate')
     button_delete:SetText('Delete set')
@@ -323,6 +316,12 @@ function opt:Populate()
     help_text:SetJustifyH('LEFT')
     help_text:SetJustifyV('TOP')
 
+    -- set dropdown ############################################################
+    self.dd_set = CreateProfileDropDown(opt)
+    self.dd_set:SetPoint('TOPLEFT',10,-20)
+    self.dd_set.labelText:Hide()
+
+    -- new set popup ###########################################################
     CreateNewSetPopUp(self)
 
     self.initialised = true
