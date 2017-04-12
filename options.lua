@@ -19,18 +19,18 @@ local function SetEditBoxToList(editbox,list)
     editbox:SetText(text or '')
 end
 local function SetValues()
-    -- update mount journal checkboxes
+    -- update mount journal interface elements
     if MountJournal and
        MountJournal:IsShown() and
        MountJournal.KuiMountUpdateDisplay
     then
-        -- XXX and profile dropdown
+        MountJournal.KuiMountSetDropDown:initialize()
         MountJournal:KuiMountUpdateDisplay()
     end
 
+    -- update options interface elements
     if not opt.initialised then return end
 
-    -- set opt interface state
     opt.dd_set:initialize()
 
     local set = ns:GetActiveSet()
@@ -231,6 +231,7 @@ local function ProfileDropDownOnChanged(dd,value,text)
 end
 local function CreateProfileDropDown(parent)
     local dd = pcdd:New(parent,'Set')
+    dd.labelText:Hide()
     dd:SetFrameStrata('TOOLTIP')
     dd:SetHeight(20)
 
@@ -319,7 +320,6 @@ function opt:Populate()
     -- set dropdown ############################################################
     self.dd_set = CreateProfileDropDown(opt)
     self.dd_set:SetPoint('TOPLEFT',10,-20)
-    self.dd_set.labelText:Hide()
 
     -- new set popup ###########################################################
     CreateNewSetPopUp(self)
@@ -409,6 +409,15 @@ local function MountJournalButtonOnClick(self,button)
             set[self.env][name] = true
         end
 
+        if opt.initialised and opt:IsShown() then
+            -- also update visible lists in opt
+            if self.env == ns.LIST_GROUND then
+                SetEditBoxToList(opt.edit_ground,set[self.env])
+            else
+                SetEditBoxToList(opt.edit_flying,set[self.env])
+            end
+        end
+
         -- push to saved var
         KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
     end
@@ -425,6 +434,7 @@ function ns:HookMountJournal()
         return
     end
 
+    -- create checkboxes on list items
     for i=1,12 do
         local item = _G['MountJournalListScrollFrameButton'..i]
 
@@ -452,6 +462,11 @@ function ns:HookMountJournal()
         item.KuiMountFlying = btn_fly
     end
 
+    -- set dropdown
+    MountJournal.KuiMountSetDropDown = CreateProfileDropDown(MountJournal)
+    MountJournal.KuiMountSetDropDown:SetPoint('TOP',0,-37)
+
+    -- new set popup
     CreateNewSetPopUp(MountJournal)
 
     MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
