@@ -281,90 +281,6 @@ do
         return b
     end
 end
--- populate config page ########################################################
-function opt:Populate()
-    -- ground mounts edit box ##################################################
-    local edit_ground = CreateEditBox('KuiMountGround',154,400)
-    edit_ground.env_id = 1
-    edit_ground.Scroll:SetPoint('TOPLEFT',30,-85)
-
-    local edit_flying = CreateEditBox('KuiMountFlying',154,400)
-    edit_flying.env_id = 2
-    edit_flying.Scroll:SetPoint('TOPLEFT',edit_ground.Scroll,'TOPRIGHT',40,0)
-
-    local edit_aquatic = CreateEditBox('KuiMountAquatic',154,175)
-    edit_aquatic.env_id = 3
-    edit_aquatic.Scroll:SetPoint('TOPLEFT',edit_flying.Scroll,'TOPRIGHT',40,0)
-
-    local edit_waterw = CreateEditBox('KuiMountWaterWalking',154,175)
-    edit_waterw.env_id = 4
-    edit_waterw.Scroll:SetPoint('TOPLEFT',edit_aquatic.Scroll,'BOTTOMLEFT',0,-50)
-
-    self.edit_ground = edit_ground
-    self.edit_flying = edit_flying
-    self.edit_aquatic = edit_aquatic
-    self.edit_waterw = edit_waterw
-
-    -- titles ##################################################################
-    local title_ground = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
-    title_ground:SetPoint('BOTTOM',edit_ground.Backdrop,'TOP',0,5)
-    title_ground:SetText('Ground')
-
-    local title_flying = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
-    title_flying:SetPoint('BOTTOM',edit_flying.Backdrop,'TOP',0,5)
-    title_flying:SetText('Flying')
-
-    local title_aquatic = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
-    title_aquatic:SetPoint('BOTTOM',edit_aquatic.Backdrop,'TOP',0,5)
-    title_aquatic:SetText('Aquatic')
-
-    local title_waterw = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
-    title_waterw:SetPoint('BOTTOM',edit_waterw.Backdrop,'TOP',0,5)
-    title_waterw:SetText('Water Walking')
-
-    -- help text ###############################################################
-    local help_text = self:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
-    help_text:SetText('Type the |cffffff88names|r or |cffffff88spell IDs|r of mounts into the relevant list and press |cffffff88Escape|r. Each mount must be on its own line. The name of the list doesn\'t matter; if you want to use a flying mount as a ground mount, put it in the |cffffff88Ground|r list.')
-    help_text:SetPoint('BOTTOM',0,0)
-    help_text:SetHeight(60)
-    help_text:SetWidth(550)
-    help_text:SetWordWrap(true)
-    help_text:SetJustifyH('LEFT')
-    help_text:SetJustifyV('TOP')
-
-    -- delete set button #######################################################
-    local button_delete = CreateSetDeleteButton(opt)
-    button_delete:SetPoint('TOPRIGHT',-10,-10)
-    button_delete:SetSize(100,25)
-    button_delete:SetText('Delete set')
-
-    -- set dropdown ############################################################
-    self.dd_set = CreateProfileDropDown(opt)
-    self.dd_set:SetPoint('TOPLEFT',10,-20)
-
-    -- new set popup ###########################################################
-    CreateNewSetPopUp(self)
-
-    self.initialised = true
-end
-function opt:PopulateWrapper()
-    if not opt.initialised then
-        if InCombatLockdown() then
-            print('Not opening uninitialised UI during combat.')
-            return
-        end
-
-        opt:Populate()
-    end
-end
-opt:SetScript('OnShow',function(self)
-    self:PopulateWrapper()
-
-    if opt.initialised then
-        SetValues()
-    end
-end)
-
 -- mount journal hooking #######################################################
 do
     local function MountJournalItemUpdateButtons(item)
@@ -489,6 +405,12 @@ do
         -- new set popup
         CreateNewSetPopUp(MountJournal)
 
+        -- set delete button
+        local button_delete = CreateSetDeleteButton(MountJournal)
+        button_delete:SetPoint('BOTTOMRIGHT',-3,2)
+        button_delete:SetSize(80,25)
+        button_delete:SetText('Delete set')
+
         MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
         MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
         MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
@@ -496,6 +418,89 @@ do
         MountJournal.KuiMountUpdateDisplay = MountJournalUpdateButtons
     end
 end
+-- populate config page ########################################################
+function opt:Populate()
+    -- ground mounts edit box ##################################################
+    local edit_ground = CreateEditBox('KuiMountGround',154,400)
+    edit_ground.env_id = 1
+    edit_ground.Scroll:SetPoint('TOPLEFT',30,-85)
+
+    local edit_flying = CreateEditBox('KuiMountFlying',154,400)
+    edit_flying.env_id = 2
+    edit_flying.Scroll:SetPoint('TOPLEFT',edit_ground.Scroll,'TOPRIGHT',40,0)
+
+    local edit_aquatic = CreateEditBox('KuiMountAquatic',154,175)
+    edit_aquatic.env_id = 3
+    edit_aquatic.Scroll:SetPoint('TOPLEFT',edit_flying.Scroll,'TOPRIGHT',40,0)
+
+    local edit_waterw = CreateEditBox('KuiMountWaterWalking',154,175)
+    edit_waterw.env_id = 4
+    edit_waterw.Scroll:SetPoint('TOPLEFT',edit_aquatic.Scroll,'BOTTOMLEFT',0,-50)
+
+    self.edit_ground = edit_ground
+    self.edit_flying = edit_flying
+    self.edit_aquatic = edit_aquatic
+    self.edit_waterw = edit_waterw
+
+    -- titles ##################################################################
+    local title_ground = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_ground:SetPoint('BOTTOM',edit_ground.Backdrop,'TOP',0,5)
+    title_ground:SetText('Ground')
+
+    local title_flying = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_flying:SetPoint('BOTTOM',edit_flying.Backdrop,'TOP',0,5)
+    title_flying:SetText('Flying')
+
+    local title_aquatic = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_aquatic:SetPoint('BOTTOM',edit_aquatic.Backdrop,'TOP',0,5)
+    title_aquatic:SetText('Aquatic')
+
+    local title_waterw = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
+    title_waterw:SetPoint('BOTTOM',edit_waterw.Backdrop,'TOP',0,5)
+    title_waterw:SetText('Water Walking')
+
+    -- help text ###############################################################
+    local help_text = self:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
+    help_text:SetText('Type the |cffffff88names|r or |cffffff88spell IDs|r of mounts into the relevant list and press |cffffff88Escape|r. Each mount must be on its own line. The name of the list doesn\'t matter; if you want to use a flying mount as a ground mount, put it in the |cffffff88Ground|r list.')
+    help_text:SetPoint('BOTTOM',0,0)
+    help_text:SetHeight(60)
+    help_text:SetWidth(550)
+    help_text:SetWordWrap(true)
+    help_text:SetJustifyH('LEFT')
+    help_text:SetJustifyV('TOP')
+
+    -- delete set button #######################################################
+    local button_delete = CreateSetDeleteButton(opt)
+    button_delete:SetPoint('TOPRIGHT',-10,-10)
+    button_delete:SetSize(80,25)
+    button_delete:SetText('Delete set')
+
+    -- set dropdown ############################################################
+    self.dd_set = CreateProfileDropDown(opt)
+    self.dd_set:SetPoint('TOPLEFT',10,-20)
+
+    -- new set popup ###########################################################
+    CreateNewSetPopUp(self)
+
+    self.initialised = true
+end
+function opt:PopulateWrapper()
+    if not opt.initialised then
+        if InCombatLockdown() then
+            print('Not opening uninitialised UI during combat.')
+            return
+        end
+
+        opt:Populate()
+    end
+end
+opt:SetScript('OnShow',function(self)
+    self:PopulateWrapper()
+
+    if opt.initialised then
+        SetValues()
+    end
+end)
 
 --------------------------------------------------------------- Slash command --
 SLASH_KUIMOUNT1 = '/kuimount'
