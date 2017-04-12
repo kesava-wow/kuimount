@@ -411,6 +411,7 @@ do
         button_delete:SetSize(80,25)
         button_delete:SetText('Delete set')
 
+        -- TODO also need to detect searching and filtering
         MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
         MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
         MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
