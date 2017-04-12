@@ -70,6 +70,14 @@ local function OnEditFocusLost(self)
         KuiMountCharacter.ActiveSet = 'default'
     end
     KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
+
+    -- update mount journal checkboxes
+    if MountJournal and
+       MountJournal:IsShown() and
+       MountJournal.KuiMountUpdateDisplay
+    then
+        MountJournal.KuiMountUpdateDisplay()
+    end
 end
 
 -- config element helpers ######################################################
