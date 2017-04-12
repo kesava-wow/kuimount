@@ -210,7 +210,7 @@ do
 
         -- new set button
         tinsert(list,{
-            text = 'New set',
+            text = 'New set...',
             value = 'new_set'
         })
 
