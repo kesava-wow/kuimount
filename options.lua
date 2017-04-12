@@ -10,6 +10,8 @@ opt:Hide()
 opt.name = category
 InterfaceOptions_AddCategory(opt)
 
+local pairs,tsort,tinsert = pairs,table.sort,tinsert
+
 -- element functions ###########################################################
 local function SetEditBoxToList(editbox,list)
     local text
@@ -219,8 +221,14 @@ do
             value = 'new_set'
         })
 
-        -- buttons for each existing set
-        for set_name,set in pairs(KuiMountSaved.Sets) do
+        -- buttons for each existing set in alphabetical order
+        local set_indexed = {}
+        for k in pairs(KuiMountSaved.Sets) do
+            tinsert(set_indexed,k)
+        end
+        tsort(set_indexed)
+
+        for _,set_name in ipairs(set_indexed) do
             tinsert(list,{
                 text = set_name,
                 selected = KuiMountCharacter.ActiveSet == set_name

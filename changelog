@@ -1,5 +1,6 @@
 beta 12-04:
 * change mount journal buttons to checkboxes and make them look (and work) better
+* add a set selector and delete set button to the mount journal
 
 beta 11-04:
 * /mount dump-old now opens an edit box from which you can copy your old sets
