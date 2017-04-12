@@ -199,46 +199,54 @@ do
         end)
     end
 end
+-- profile dropdown ############################################################
+local function ProfileDropDownInitialize(dd)
+    local list = {}
+
+    -- new set button
+    tinsert(list,{
+        text = 'New set',
+        value = 'new_set'
+    })
+
+    -- buttons for each existing set
+    for set_name,set in pairs(KuiMountSaved.Sets) do
+        tinsert(list,{
+            text = set_name,
+            selected = KuiMountCharacter.ActiveSet == set_name
+        })
+    end
+
+    dd:SetList(list)
+    dd:SetValue(KuiMountCharacter.ActiveSet)
+end
+local function ProfileDropDownOnChanged(dd,value,text)
+    if value and value == 'new_set' then
+        -- woo make a new set
+        dd:GetParent().KuiMountPopup:Show()
+        return
+    else
+        ActivateSet(text)
+    end
+end
+local function CreateProfileDropDown(parent)
+    local dd = pcdd:New(parent,'Set')
+    dd:SetFrameStrata('TOOLTIP')
+    dd:SetHeight(20)
+
+    dd.initialize = ProfileDropDownInitialize
+    dd.OnValueChanged = ProfileDropDownOnChanged
+
+    dd:HookScript('OnShow',dd.initialize)
+
+    return dd
+end
 -- populate config page ########################################################
 function opt:Populate()
     -- set dropdown ############################################################
-    local dd_set = pcdd:New(opt,'Set')
+    local dd_set = CreateProfileDropDown(opt)
     dd_set:SetPoint('TOPLEFT',10,-20)
-    dd_set:SetFrameStrata('TOOLTIP')
-    dd_set:SetHeight(20)
     dd_set.labelText:Hide()
-
-    function dd_set:initialize()
-        local list = {}
-
-        -- new set button
-        tinsert(list,{
-            text = 'New set',
-            value = 'new_set'
-        })
-
-        -- buttons for each existing set
-        for set_name,set in pairs(KuiMountSaved.Sets) do
-            tinsert(list,{
-                text = set_name,
-                selected = KuiMountCharacter.ActiveSet == set_name
-            })
-        end
-
-        self:SetList(list)
-        self:SetValue(KuiMountCharacter.ActiveSet)
-    end
-    function dd_set:OnValueChanged(value,text)
-        if value and value == 'new_set' then
-            -- woo make a new set
-            opt.KuiMountPopup:Show()
-            return
-        else
-            ActivateSet(text)
-        end
-    end
-
-    dd_set:HookScript('OnShow',dd_set.initialize)
 
     self.dd_set = dd_set
 
@@ -249,11 +257,19 @@ function opt:Populate()
     button_delete:SetSize(100,25)
 
     button_delete:SetScript('OnClick',function(self)
-        -- delete the current set & switch to default
+        -- collapse dropdowns when deleting
         if opt.dd_set.list then
             opt.dd_set.list:Hide()
         end
 
+        if MountJournal and
+           MountJournal.KuiMountSetDropDown and
+           MountJournal.KuiMountSetDropDown.list
+        then
+            MountJournal.KuiMountSetDropDown.list:Hide()
+        end
+
+        -- delete the current set & switch to default
         KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = nil
         ActivateSet('default')
     end)
