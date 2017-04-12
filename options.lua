@@ -250,15 +250,10 @@ local function CreateProfileDropDown(parent)
 
     return dd
 end
--- populate config page ########################################################
-function opt:Populate()
-    -- delete set button #######################################################
-    local button_delete = CreateFrame('Button',nil,opt,'UIPanelButtonTemplate')
-    button_delete:SetText('Delete set')
-    button_delete:SetPoint('TOPRIGHT',-10,-10)
-    button_delete:SetSize(100,25)
-
-    button_delete:SetScript('OnClick',function(self)
+-- delete set button ###########################################################
+local CreateSetDeleteButton
+do
+    local function SetDeleteButtonOnClick(self)
         -- collapse dropdowns when deleting
         if opt.dd_set.list then
             opt.dd_set.list:Hide()
@@ -274,8 +269,16 @@ function opt:Populate()
         -- delete the current set & switch to default
         KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = nil
         ActivateSet('default')
-    end)
+    end
 
+    function CreateSetDeleteButton(parent)
+        local b = CreateFrame('Button',nil,parent,'UIPanelButtonTemplate')
+        b:SetScript('OnClick',SetDeleteButtonOnClick)
+        return b
+    end
+end
+-- populate config page ########################################################
+function opt:Populate()
     -- ground mounts edit box ##################################################
     local edit_ground = CreateEditBox('KuiMountGround',154,400)
     edit_ground.env_id = 1
@@ -324,6 +327,12 @@ function opt:Populate()
     help_text:SetWordWrap(true)
     help_text:SetJustifyH('LEFT')
     help_text:SetJustifyV('TOP')
+
+    -- delete set button #######################################################
+    local button_delete = CreateSetDeleteButton(opt)
+    button_delete:SetPoint('TOPRIGHT',-10,-10)
+    button_delete:SetSize(100,25)
+    button_delete:SetText('Delete set')
 
     -- set dropdown ############################################################
     self.dd_set = CreateProfileDropDown(opt)
