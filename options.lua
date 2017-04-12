@@ -260,7 +260,7 @@ local CreateSetDeleteButton
 do
     local function SetDeleteButtonOnClick(self)
         -- collapse dropdowns when deleting
-        if opt.dd_set.list then
+        if opt.initialised and opt.dd_set.list then
             opt.dd_set.list:Hide()
         end
 
@@ -277,7 +277,7 @@ do
 
     function CreateSetDeleteButton(parent)
         local b = CreateFrame('Button',nil,parent,'UIPanelButtonTemplate')
-        b:SetScript('OnClick',SetDeleteButtonOnClick)
+        b:HookScript('OnClick',SetDeleteButtonOnClick)
         return b
     end
 end
