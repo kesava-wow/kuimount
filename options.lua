@@ -78,7 +78,7 @@ local function OnEditFocusLost(self)
        MountJournal:IsShown() and
        MountJournal.KuiMountUpdateDisplay
     then
-        MountJournal.KuiMountUpdateDisplay()
+        MountJournal:KuiMountUpdateDisplay()
     end
 end
 
@@ -326,6 +326,7 @@ do
         end
     end
     local function MountJournalUpdateButtons()
+        if not MountJournal:IsShown() then return end
         for i=1,12 do
             MountJournalItemUpdateButtons(_G['MountJournalListScrollFrameButton'..i])
         end
@@ -375,8 +376,8 @@ do
         assert(MountJournal)
         assert(MountJournalListScrollFrameButton1)
 
-        if MountJournal.KuiMountHooked then return end
-        MountJournal.KuiMountHooked = true
+        if self.MountJournalHooked then return end
+        self.MountJournalHooked = true
 
         -- create checkboxes on list items
         for i=1,12 do
@@ -419,12 +420,14 @@ do
         button_delete:SetSize(80,25)
         button_delete:SetText('Delete set')
 
-        -- TODO also need to detect searching and filtering
         MountJournal:HookScript('OnShow',MountJournalUpdateButtons)
         MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateButtons)
         MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateButtons)
 
         MountJournal.KuiMountUpdateDisplay = MountJournalUpdateButtons
+
+        -- update upon searching/filtering
+        hooksecurefunc("MountJournal_UpdateMountDisplay",MountJournalUpdateButtons)
     end
 end
 -- populate config page ########################################################
