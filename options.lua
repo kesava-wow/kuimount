@@ -434,13 +434,11 @@ local function MountJournalButtonOnClick(self,button)
 end
 
 function ns:HookMountJournal()
+    assert(MountJournal)
+    assert(MountJournalListScrollFrameButton1)
+
     if MountJournal.KuiMountHooked then return end
     MountJournal.KuiMountHooked = true
-
-    if not MountJournal or not MountJournalListScrollFrameButton1 then
-        error('MountJournal was expected, is nil')
-        return
-    end
 
     -- create checkboxes on list items
     for i=1,12 do
