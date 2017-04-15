@@ -4,6 +4,7 @@
 local addon,ns = ...
 local category = 'Kui |cff9966ffMount|r'
 local pcdd = LibStub('PhanxConfig-Dropdown')
+local kui = LibStub('Kui-1.0')
 
 local opt = CreateFrame("Frame", "KuiMountConfig", InterfaceOptionsFramePanelContainer)
 opt:Hide()
@@ -516,57 +517,33 @@ end)
 SLASH_KUIMOUNT1 = '/kuimount'
 SLASH_KUIMOUNT2 = '/mount'
 
-local old_set_editbox
 local function DumpOldSet(name,set)
-    if not set or not old_set_editbox then return end
-
-    old_set_editbox:SetText(old_set_editbox:GetText()..'|cffffff88'..name..'|r|n')
+    if not set then return end
+    local m = '|cffffff88'..name..'|r|n'
 
     local i = 0
     for k,v in pairs(set) do
         i = i + 1
-        old_set_editbox:SetText(old_set_editbox:GetText()..k..'|n')
+        m = m..k..'|n'
     end
 
     if i == 0 then
-        old_set_editbox:SetText(old_set_editbox:GetText()..'No data|n')
+        m=  m..'No data|n'
     end
 
-    old_set_editbox:SetText(old_set_editbox:GetText()..'|n')
+    return m
 end
 function SlashCmdList.KUIMOUNT(msg)
     if msg == 'debug' then
         ns.debug = not ns.debug
         return
     elseif msg == 'dump-old' then
-        if not old_set_editbox then
-            old_set_editbox = CreateEditBox('KuiMountOldSet',250,600,UIParent)
-            old_set_editbox:SetFrameStrata('DIALOG')
-            old_set_editbox.Scroll:SetFrameStrata('DIALOG')
-            old_set_editbox.Scroll:SetPoint('CENTER')
-            old_set_editbox.Backdrop:SetFrameStrata('DIALOG')
-            old_set_editbox.Backdrop:SetBackdropColor(.1,.1,.1,.8)
-
-            old_set_editbox:SetScript('OnEscapePressed',function(self)
-                self:ClearFocus()
-                self:Hide()
-                self.Scroll:Hide()
-                self.Backdrop:Hide()
-            end)
-        else
-            old_set_editbox:SetText('')
-        end
-
-        DumpOldSet('One',KuiMountSaved.OLD_SET_ONE)
-        DumpOldSet('Two',KuiMountSaved.OLD_SET_TWO)
-        DumpOldSet('Three',KuiMountSaved.OLD_SET_THREE)
-        DumpOldSet('Char',KuiMountCharacter.OLD_SET_CHAR)
-
-        old_set_editbox.Backdrop:Show()
-        old_set_editbox.Scroll:Show()
-        old_set_editbox:Show()
-        old_set_editbox:SetFocus()
-
+        local d = kui:DebugPopup()
+        d:AddText(DumpOldSet('One',KuiMountSaved.OLD_SET_ONE))
+        d:AddText(DumpOldSet('Two',KuiMountSaved.OLD_SET_TWO))
+        d:AddText(DumpOldSet('Three',KuiMountSaved.OLD_SET_THREE))
+        d:AddText(DumpOldSet('Char',KuiMountCharacter.OLD_SET_CHAR))
+        d:Show()
         return
     end
 
