@@ -225,7 +225,9 @@ do
         for k in pairs(KuiMountSaved.Sets) do
             tinsert(set_indexed,k)
         end
-        tsort(set_indexed)
+        tsort(set_indexed,function(a,b)
+            return strlower(a) < strlower(b)
+        end)
 
         for _,set_name in ipairs(set_indexed) do
             tinsert(list,{
