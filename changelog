@@ -1,3 +1,6 @@
+beta 15-04:
+* embed kuilib, and use its DebugPopup for dump-old
+
 beta 12-04:
 * correctly update mount journal checkboxes upon searching & filtering
 * sort set dropdown list alphabetically
