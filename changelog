@@ -1,5 +1,7 @@
 beta 15-04:
 * embed kuilib, and use its DebugPopup for dump-old
+* validate entries into spell id (and display correct case)
+* correctly sort profile dropdown by case
 
 beta 12-04:
 * correctly update mount journal checkboxes upon searching & filtering
