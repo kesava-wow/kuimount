@@ -61,11 +61,7 @@ local function OnEditFocusLost(self)
             local id = ns:GetMountID(name)
             local spellid = select(2,C_MountJournal.GetMountInfoByID(id))
 
-            if spellid then
-                list[spellid] = true
-            else
-                list[strlower(name)] = true
-            end
+            list[spellid or name] = true
         end
     end
 
@@ -304,9 +300,8 @@ do
 
         local name = GetSpellInfo(spellid)
         if not name then return end
-        name = strlower(name)
 
-        local mount_id = ns:GetCollectedMountID(name)
+        local mount_id = ns:GetMountID(name)
         if mount_id then
             if ns:IsInActiveList(ns.LIST_GROUND,spellid) then
                 item.KuiMountGround:SetChecked(true)
@@ -348,12 +343,11 @@ do
 
         local name = GetSpellInfo(spellid)
         if not name then return end
-        name = strlower(name)
 
         -- highlight parent
         self:GetParent():Click()
 
-        if ns:GetCollectedMountID(name) then
+        if ns:GetMountID(name) then
             local set = ns:GetActiveSet()
 
             if (self.env == ns.LIST_GROUND and ns:IsInActiveList(ns.LIST_GROUND,spellid)) or

@@ -73,7 +73,7 @@ function ns:GetMounts()
     end
 end
 function ns:GetMountID(name)
-    return collected_mounts_by_name[name] or
+    return collected_mounts_by_name[strlower(name)] or
            nil
 end
 function ns:GetNumKnownMounts()
@@ -111,9 +111,6 @@ function ns:NewSet(id)
 end
 function ns:IsInActiveList(list_id,name)
     return self:GetActiveSet()[list_id][name] and true or nil
-end
-function ns:GetCollectedMountID(name)
-    return collected_mounts_by_name[name] or nil
 end
 
 -- mounting functions ##########################################################
