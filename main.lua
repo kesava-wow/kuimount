@@ -103,8 +103,8 @@ function ns:NewSet(id)
     if not id then return end
     KuiMountSaved.Sets[id] = DefaultSet()
 end
-function ns:IsInActiveList(list_id,name)
-    return self:GetActiveSet()[list_id][name] and true or nil
+function ns:IsInActiveList(list_id,key)
+    return self:GetActiveSet()[list_id][key] and true or nil
 end
 
 -- mounting functions ##########################################################
