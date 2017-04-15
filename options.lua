@@ -17,6 +17,7 @@ local pairs,tsort,tinsert = pairs,table.sort,tinsert
 local function SetEditBoxToList(editbox,list)
     local text
     for t,_ in pairs(list) do
+        t = GetSpellInfo(t) or t
         text = text and text..t..'\n' or t..'\n'
     end
     editbox:SetText(text or '')
@@ -57,8 +58,14 @@ local function OnEditFocusLost(self)
 
     for k,name in ipairs(new_list) do
         if name ~= '' then
-            list[strlower(name)] = true
-            -- TODO verify & correct into name?
+            local id = ns:GetMountID(name)
+            local spellid = select(2,C_MountJournal.GetMountInfoByID(id))
+
+            if spellid then
+                list[spellid] = true
+            else
+                list[strlower(name)] = true
+            end
         end
     end
 
@@ -69,6 +76,8 @@ local function OnEditFocusLost(self)
         KuiMountCharacter.ActiveSet = 'default'
     end
     KuiMountSaved.Sets[KuiMountCharacter.ActiveSet] = set
+
+    SetValues()
 
     -- update mount journal checkboxes
     if ns.MountJournalHooked then
