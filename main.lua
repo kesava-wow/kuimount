@@ -104,6 +104,7 @@ function ns:NewSet(id)
     KuiMountSaved.Sets[id] = DefaultSet()
 end
 function ns:IsInActiveList(list_id,key)
+    if type(key) == 'string' then key = strlower(key) end
     return self:GetActiveSet()[list_id][key] and true or nil
 end
 

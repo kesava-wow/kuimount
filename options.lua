@@ -303,7 +303,9 @@ do
 
         local mount_id = ns:GetMountID(name)
         if mount_id then
-            if ns:IsInActiveList(ns.LIST_GROUND,spellid) then
+            if ns:IsInActiveList(ns.LIST_GROUND,spellid) or
+               ns:IsInActiveList(ns.LIST_GROUND,name)
+            then
                 item.KuiMountGround:SetChecked(true)
             else
                 item.KuiMountGround:SetChecked(false)
@@ -313,7 +315,9 @@ do
             local mountType = select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
             if mountType == 248 or mountType == 247 then
                 -- flying mount; show flying check box
-                if ns:IsInActiveList(ns.LIST_FLY,spellid) then
+                if ns:IsInActiveList(ns.LIST_FLY,spellid) or
+                   ns:IsInActiveList(ns.LIST_FLY,name)
+                then
                     item.KuiMountFlying:SetChecked(true)
                 else
                     item.KuiMountFlying:SetChecked(false)
