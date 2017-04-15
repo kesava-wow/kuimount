@@ -299,16 +299,16 @@ do
         item.KuiMountGround:Hide()
         item.KuiMountFlying:Hide()
 
-        local name = item.name and item.name:GetText()
-        if name then
-            name = strlower(name)
-        else
-            return
-        end
+        local spellid = item.spellID
+        if not spellid then return end
+
+        local name = GetSpellInfo(spellid)
+        if not name then return end
+        name = strlower(name)
 
         local mount_id = ns:GetCollectedMountID(name)
         if mount_id then
-            if ns:IsInActiveList(ns.LIST_GROUND,name) then
+            if ns:IsInActiveList(ns.LIST_GROUND,spellid) then
                 item.KuiMountGround:SetChecked(true)
             else
                 item.KuiMountGround:SetChecked(false)
@@ -318,7 +318,7 @@ do
             local mountType = select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
             if mountType == 248 or mountType == 247 then
                 -- flying mount; show flying check box
-                if ns:IsInActiveList(ns.LIST_FLY,name) then
+                if ns:IsInActiveList(ns.LIST_FLY,spellid) then
                     item.KuiMountFlying:SetChecked(true)
                 else
                     item.KuiMountFlying:SetChecked(false)
@@ -343,22 +343,25 @@ do
             PlaySound("igMainMenuOptionCheckBoxOff")
         end
 
-        local name = self:GetParent().name:GetText()
+        local spellid = self:GetParent().spellID
+        if not spellid then return end
+
+        local name = GetSpellInfo(spellid)
         if not name then return end
+        name = strlower(name)
 
         -- highlight parent
         self:GetParent():Click()
 
-        name = strlower(name)
         if ns:GetCollectedMountID(name) then
             local set = ns:GetActiveSet()
 
-            if (self.env == ns.LIST_GROUND and ns:IsInActiveList(ns.LIST_GROUND,name)) or
-               (self.env == ns.LIST_FLY and ns:IsInActiveList(ns.LIST_FLY,name))
+            if (self.env == ns.LIST_GROUND and ns:IsInActiveList(ns.LIST_GROUND,spellid)) or
+               (self.env == ns.LIST_FLY and ns:IsInActiveList(ns.LIST_FLY,spellid))
             then
-                set[self.env][name] = nil
+                set[self.env][spellid] = nil
             else
-                set[self.env][name] = true
+                set[self.env][spellid] = true
             end
 
             if opt.initialised and opt:IsShown() then

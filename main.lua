@@ -7,17 +7,6 @@ local select, strfind, strlower, tonumber, tinsert
 local _,i,x
 local SecureButton
 
--- TODO use zone IDs or something
-local swimZones = {
-    ['Vashj\'ir'] = true,
-    ['Ruins of Vashj\'ir'] = true,
-    ['Abyssal Depths'] = true,
-    ['Kelp\'thar Forest'] = true,
-    ['Shimmering Expanse'] = true,
-    ['Damplight Chamber'] = true,
-    ['Beth\'mora Ridge'] = true,
-}
-
 -- zones that aren't flyable despite being flagged as such
 local nonFlyZones = {
     ['The Wandering Isle'] = true,
@@ -137,8 +126,7 @@ local function Mount()
     local active_set = ns:GetActiveSet()
 
     local list
-    local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
-    local useAquatic = isSwimZone and IsShiftKeyDown()
+    local useAquatic = IsSwimming() and IsSubmerged()
     local useFlying = not useAquatic and
                       (not IsControlKeyDown() and IsFlyableArea()) and
                       (not nonFlyZones[GetZoneText()])
