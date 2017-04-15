@@ -46,11 +46,10 @@ ns.LIST_WATERWALK = 4
 -- mount collection functions ##################################################
 local collected_mounts_by_name = {}
 local known_spellid_mounts = {}
-local num_mounts = 0
 function ns:GetMounts()
     -- generate list of mounts by name => id
+    -- used to convert names to IDs as there is no API for this
     wipe(collected_mounts_by_name)
-    num_mounts = 0
 
     for k,i in ipairs(C_MountJournal.GetMountIDs()) do
         local name,_,_,_,_,_,_,_,_,_,isCollected,mountID =
@@ -58,7 +57,6 @@ function ns:GetMounts()
 
         if isCollected then
             collected_mounts_by_name[strlower(name)] = mountID
-            num_mounts = num_mounts + 1
         end
     end
 
@@ -68,16 +66,12 @@ function ns:GetMounts()
         if IsSpellKnown(id) then
             local name = GetSpellInfo(id)
             known_spellid_mounts[strlower(name)] = id
-            num_mounts = num_mounts + 1
         end
     end
 end
 function ns:GetMountID(name)
     return collected_mounts_by_name[strlower(name)] or
            nil
-end
-function ns:GetNumKnownMounts()
-    return num_mounts
 end
 
 -- saved variable functions ####################################################
@@ -115,11 +109,6 @@ end
 
 -- mounting functions ##########################################################
 local function Mount()
-    if ns:GetNumKnownMounts() <= 0 then
-        UIErrorsFrame:AddMessage('You don\'t have any mounts', 1,0,0)
-        return
-    end
-
     local active_set = ns:GetActiveSet()
 
     local list
