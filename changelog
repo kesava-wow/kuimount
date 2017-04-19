@@ -1,47 +1,9 @@
-beta 15-04:
-* embed kuilib, and use its DebugPopup for dump-old
-* validate entries into spell id (and display correct case)
-* correctly sort profile dropdown by case
+THIS UPDATE RESETS THE WHITELISTS!
+They will be backed up to a saved variable which can be viewed and copied by typing:
+	/mount dump-old
 
-beta 12-04:
-* correctly update mount journal checkboxes upon searching & filtering
-* sort set dropdown list alphabetically
-* fix nil error when deleting sets from the mounr journal
-
-* change mount journal buttons to checkboxes and make them look (and work) better
-* add a set selector and delete set button to the mount journal
-
-beta 11-04:
-* /mount dump-old now opens an edit box from which you can copy your old sets
-into the new edit boxes, rather than having to do it all manually.
-* add (early) buttons to default mount journal interface to add mounts to the
-ground/flying lists
-
-beta 09-04:
-* REALLY correctly backup legacy character specific set
-* fix selects faction-specific mounts and profession-specific mounts which
-can't currently be used
-* fix selects ground-only mounts in flyable areas with a blank whitelist
-
-* there is now a warning in chat when old saved variables are backed up
-* correctly backup character specific set on every character
-* correctly reset ActiveSet to default
-* improve output of dump-old
-* fix lua error when deleting a set before using the set dropdown list
-* remove some unused variables
-
-beta 08-04:
-* you can now specify mounts to use as ground, flying, aquatic or water
-walking - there are 4 separate lists to do so. Whether or not a mount actually
-fits into one of those lists is up to you; I no longer do any hard-to-maintain
-or English-client-specific tooltip parsing.
-* the aquatic and water walking lists are pre-filled with all of the mounts that
-currently exist in those categories.
-* you can specify mounts/spells with either name or spell ID
-* removed legacy support (mounting with an old-style macro - you can still
-mount with a /click macro)
-* you can now make a theoretically-unlimited number of sets, rather than just
-3. Which set is currently active is saved per character.
-
-Your old sets should be backed up and can be viewed in chat by typing:
-/mount dump-old
+* the mount journal interface now has checkboxes for flying and ground which you can use to add or mounts to those lists.
+* you can now make a theoretically-unlimited number of sets, rather than just 3. Which set is currently active is saved per character.
+* you can now specify mounts to use as ground, flying, aquatic or water walking - there are 4 separate lists to do so. Whether or not a mount actually fits into one of those lists is up to you; I no longer do any hard-to-maintain or English-client-specific tooltip parsing.
+- the aquatic and water walking lists are pre-filled with all of the mounts that currently exist in those categories
+* you can specify mounts/spells with either their name or spell ID
