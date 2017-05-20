@@ -300,9 +300,10 @@ do
         local spellid = item.spellID
         if not spellid then return end
 
-        local name = GetSpellInfo(spellid)
+        local name = item.name:GetText()
         if not name then return end
 
+        -- because for some reason the button doesn't just have the id in it.
         local mount_id = ns:GetMountID(name)
         if mount_id then
             if ns:IsInActiveList(ns.LIST_GROUND,spellid) or
@@ -347,7 +348,7 @@ do
         local spellid = self:GetParent().spellID
         if not spellid then return end
 
-        local name = GetSpellInfo(spellid)
+        local name = self:GetParent().name:GetText()
         if not name then return end
 
         -- highlight parent

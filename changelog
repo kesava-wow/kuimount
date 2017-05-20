@@ -1,9 +1,1 @@
-THIS UPDATE RESETS THE WHITELISTS!
-They will be backed up to a saved variable which can be viewed and copied by typing:
-	/mount dump-old
-
-* the mount journal interface now has checkboxes for flying and ground which you can use to add or mounts to those lists.
-* you can now make a theoretically-unlimited number of sets, rather than just 3. Which set is currently active is saved per character.
-* you can now specify mounts to use as ground, flying, aquatic or water walking - there are 4 separate lists to do so. Whether or not a mount actually fits into one of those lists is up to you; I no longer do any hard-to-maintain or English-client-specific tooltip parsing.
-- the aquatic and water walking lists are pre-filled with all of the mounts that currently exist in those categories
-* you can specify mounts/spells with either their name or spell ID
+* fix certain mounts which have two different names aren't given checkboxes
