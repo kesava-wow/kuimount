@@ -48,6 +48,11 @@ local spellIdMounts = {
 
 ns.f = CreateFrame('Frame', KuiMountFrame)
 
+-- flying skill spell IDs
+local FLYING_EXPERT = 34090
+local FLYING_ARTISAN = 34091
+local FLYING_MASTER = 90265
+
 -- list ID enums
 ns.LIST_GROUND = 1
 ns.LIST_FLY = 2
@@ -120,15 +125,19 @@ function ns:IsInActiveList(list_id,key)
 end
 
 -- mounting functions ##########################################################
+local function CanFly()
+    return IsFlyableArea() and not nonFlyZones[GetZoneText()] and (
+               IsSpellKnown(FLYING_MASTER) or
+               IsSpellKnown(FLYING_ARTISAN) or
+               IsSpellKnown(FLYING_EXPERT))
+end
 local function Mount()
     local active_set = ns:GetActiveSet()
 
     local list
     local isSwimZone = IsSwimming() and swimZones[GetZoneText()]
     local useAquatic = isSwimZone and IsShiftKeyDown()
-    local useFlying = not useAquatic and
-                      (not IsControlKeyDown() and IsFlyableArea()) and
-                      (not nonFlyZones[GetZoneText()])
+    local useFlying = not useAquatic and not IsControlKeyDown() and CanFly()
     local useWaterWalking = not useFlying and not useAquatic and
                             IsShiftKeyDown()
 
