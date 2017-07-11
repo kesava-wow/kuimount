@@ -1,1 +1,1 @@
-* fix certain mounts which have two different names aren't given checkboxes (ivory/white hawkstrider for instance)
+* fix attempts to use a flying mount in certain zones even if a flying skill isn't known
