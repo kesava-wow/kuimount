@@ -28,22 +28,11 @@ local nonFlyZones = {
     ['The Maelstrom'] = true,
 }
 
--- spell id mounts which don't specify they can fly in their tooltip
-local extraHybrid = {
-    [783] = true, -- travel form, post 6.0
-}
-
--- these mounts aren't companions
--- (travel/ghost wolf won't actually work in combat without some more code
--- modification but they're here for when it's ready)
--- when indoors, spells which can be used indoors will be fallen back on
+-- mounts which aren't companions (i.e. aren't in the pet journal interface)
 local spellIdMounts = {
-    768,   -- cat form
     783,   -- travel form
-    1066,  -- aquatic form
     2645,  -- ghost wolf
     87840, -- running wild
-    165962, -- flight form
 }
 
 ns.f = CreateFrame('Frame', KuiMountFrame)
