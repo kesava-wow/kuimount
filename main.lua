@@ -114,7 +114,7 @@ local function Mount()
     local active_set = ns:GetActiveSet()
 
     local list
-    local useAquatic = IsSwimming() and IsShiftKeyDown()
+    local useAquatic = IsSwimming() and IsAltKeyDown()
     local useFlying = not useAquatic and not IsControlKeyDown() and CanFly()
     local useWaterWalking = not useFlying and not useAquatic and
                             IsShiftKeyDown()
