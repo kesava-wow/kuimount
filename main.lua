@@ -8,8 +8,7 @@ local _,i,x
 local SecureButton
 local previousMountUsed
 
--- XXX add secure buttons for:
---   - use previous
+-- XXX add bindings for:
 --   - use aquatic
 --   - use water walking
 
