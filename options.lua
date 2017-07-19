@@ -57,11 +57,19 @@ local function OnEditFocusLost(self)
     local list = {}
 
     for k,name in ipairs(new_list) do
-        if name ~= '' then
-            local id = ns:GetMountID(name)
-            local spellid = select(2,C_MountJournal.GetMountInfoByID(id))
+        if name and name ~= '' then
+            if tonumber(name) then
+                -- add to list as given spell id
+                list[tonumber(name)] = true
+            else
+                -- convert name to spell id
+                local id,spellid = ns:GetMountID(name)
+                if id then
+                    spellid = select(2,C_MountJournal.GetMountInfoByID(id))
+                end
 
-            list[spellid or name] = true
+                list[spellid or strlower(name)] = true
+            end
         end
     end
 

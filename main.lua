@@ -101,6 +101,7 @@ local function DefaultSet()
         {}, -- ground
         {}, -- flying
         {   -- aquatic
+            [783] = true, -- travel form
             [75207] = true,  -- sea pony
             [98718] = true,  -- sea pony 2.0
             [64731] = true,  -- sea turtle
