@@ -8,13 +8,17 @@ local _,i,x
 local SecureButton
 
 -- zones that aren't flyable despite being flagged as such
-local nonFlyZones = {
-    ['The Wandering Isle'] = true,
-    ['Helheim'] = true,
-    ['Skyhold'] = true,
-    ['Niskara'] = true,
-    ['Dreadscar Rift'] = true,
-    ['The Maelstrom'] = true,
+-- (converted to name in ADDON_LOADED)
+-- XXX GetCurrentMapAreaID(), GetMapNameByID()
+local nonFlyZones = {}
+local nonFlyZones_by_id = {
+    737, -- the maelstrom
+    1022, -- helheim
+    1035, -- skyhold
+    1044, -- the wandering isle
+    1050, -- dreadscar rift
+    1052, -- mardum, the shattered abyss
+    1078, -- niskara
 }
 
 -- mounts which aren't companions (i.e. aren't in the pet journal interface)
@@ -225,6 +229,13 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
         if MountJournal then
             -- Blizzard_Collections is already loaded
             ns:HookMountJournal()
+        end
+
+        -- convert map IDs to names
+        for _,id in ipairs(nonFlyZones_by_id) do
+            if tonumber(id) and GetMapNameByID(id) then
+                nonFlyZones[GetMapNameByID(id)] = true
+            end
         end
 
         SecureButton = CreateFrame("Button", 'KuiMountSecureButton', UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
