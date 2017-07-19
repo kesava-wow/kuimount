@@ -1,1 +1,3 @@
+* fix spell IDs are entered into lists are strings (and as such are ignored until the list is edited again)
 * fix attempts to use a flying mount in certain zones even if a flying skill isn't known
+* cat form is no longer supported
