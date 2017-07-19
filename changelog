@@ -1,3 +1,4 @@
+* add "mount: use previous" binding to use the previously selected mount again (macro-able with /click KuiMountSecureButton UsePrevious)
 * you can now hold ALT to use an aquatic mount while swimming in any zone
 * the list of non-flyable zones is now converted to the local language upon load rather than being english-client only
 * fix spell IDs are entered into lists are strings (and as such are ignored until the list is edited again)

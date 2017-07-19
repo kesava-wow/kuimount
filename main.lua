@@ -196,7 +196,7 @@ local function Mount()
 end
 
 -- secure button handlers ------------------------------------------------------
-local function ButtonPreClick(self)
+local function ButtonPreClick(self,button)
     if UnitInVehicle('player') then
         VehicleExit()
         return
@@ -212,9 +212,14 @@ local function ButtonPreClick(self)
         return
     end
 
-    -- blank the macro so that we don't get 2 uierrors if no mount is usable
-    SecureButton:SetAttribute('macrotext', '')
-    Mount()
+    if button == 'UsePrevious' and previousMountUsed then
+        -- use previously selected mount (make no changes)
+        return
+    else
+        -- blank the macro so that we don't get 2 uierrors if no mount is usable
+        SecureButton:SetAttribute('macrotext', '')
+        Mount()
+    end
 end
 
 -- events ----------------------------------------------------------------------
@@ -303,4 +308,5 @@ ns.Mount = Mount
 -- globals for key binding support
 BINDING_HEADER_KUIMOUNT_HEADER = 'Kui Mount'
 setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:UsePrevious", "Mount previous")
 KuiMountMount = Mount

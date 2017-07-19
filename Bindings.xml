@@ -1,4 +1,6 @@
 <Bindings>
     <Binding header="KUIMOUNT_HEADER" name="CLICK KuiMountSecureButton:LeftButton">
     </Binding>
+    <Binding header="KUIMOUNT_HEADER" name="CLICK KuiMountSecureButton:UsePrevious">
+    </Binding>
 </Bindings>
