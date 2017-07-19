@@ -6,6 +6,12 @@ local select, strfind, strlower, tonumber, tinsert
     = select, strfind, strlower, tonumber, tinsert
 local _,i,x
 local SecureButton
+local previousMountUsed
+
+-- XXX add secure buttons for:
+--   - use previous
+--   - use aquatic
+--   - use water walking
 
 -- zones that aren't flyable despite being flagged as such
 -- (converted to name in ADDON_LOADED)
@@ -183,6 +189,7 @@ local function Mount()
         end
 
         SecureButton:SetAttribute('macrotext','/cast '..spell_name)
+        previousMountUsed = spell_name
     else
         UIErrorsFrame:AddMessage('Couldn\'t find a usable mount', 1,0,0)
     end
