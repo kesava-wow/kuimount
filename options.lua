@@ -440,6 +440,15 @@ do
         button_delete:SetSize(80,25)
         button_delete:SetText('Delete set')
 
+        -- open legacy interface button
+        local button_legacy = CreateFrame('Button',nil,MountJournal,'UIPanelButtonTemplate')
+        button_legacy:SetPoint('RIGHT',button_delete,'LEFT')
+        button_legacy:SetSize(90,25)
+        button_legacy:SetText('Kui Mount')
+        button_legacy:HookScript('OnClick',function(self)
+            SlashCmdList.KUIMOUNT()
+        end)
+
         MountJournal:HookScript('OnShow',MountJournalUpdateDisplay)
         MountJournalListScrollFrame:HookScript('OnVerticalScroll',MountJournalUpdateDisplay)
         MountJournalListScrollFrame:HookScript('OnMouseWheel',MountJournalUpdateDisplay)
