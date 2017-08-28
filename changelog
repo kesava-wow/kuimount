@@ -1,8 +1,2 @@
-* add "mount: use previous" binding to use the previously selected mount again (macro-able with /click KuiMountSecureButton UsePrevious)
-* add "Kui Mount" button to open the legacy interface to the mount journal
-* add hold ALT to use an aquatic mount while swimming in any zone
-* add support for non-flyable zones on non-english clients
-* fix spell IDs entered into lists are ignored until the list is edited again
-* fix attempts to use a flying mount in certain zones even if a flying skill isn't known
-* cat form is no longer supported
-* vashj'ir no longer has special treatment as a swim-only zone
+REQUIRES A CLIENT RESTART
+* fix PlaySound errors in 7.3
