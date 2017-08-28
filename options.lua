@@ -12,6 +12,11 @@ opt.name = category
 InterfaceOptions_AddCategory(opt)
 
 local pairs,tsort,tinsert = pairs,table.sort,tinsert
+
+local S_CHECKBOX_ON = 856
+local S_CHECKBOX_OFF = 857
+local S_MENU_OPEN = 850
+local S_MENU_CLOSE = 851
 local PlaySound = PlaySoundKitID or PlaySound
 
 -- element functions ###########################################################
@@ -135,10 +140,10 @@ do
     local function PopupOnShow(self)
         self.editbox:SetText('')
         self.editbox:SetFocus()
-        PlaySound(850) -- IG_MAINMENU_OPEN
+        PlaySound(S_MENU_OPEN)
     end
     local function PopupOnHide(self)
-        PlaySound(851) -- IG_MAINMENU_CLOSE
+        PlaySound(S_MENU_CLOSE)
     end
     local function PopupOnKeyUp(self,kc)
         if kc == 'ENTER' then
@@ -349,9 +354,9 @@ do
     end
     local function MountJournalButtonOnClick(self,button)
         if self:GetChecked() then
-            PlaySound(856) -- IG_MAINMENU_OPTION_CHECKBOX_ON
+            PlaySound(S_CHECKBOX_ON)
         else
-            PlaySound(857) -- IG_MAINMENU_OPTION_CHECKBOX_OFF
+            PlaySound(S_CHECKBOX_OFF)
         end
 
         local spellid = self:GetParent().spellID
