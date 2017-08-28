@@ -3,7 +3,7 @@
 -- All rights reserved
 local addon,ns = ...
 local category = 'Kui |cff9966ffMount|r'
-local pcdd = LibStub('PhanxConfig-Dropdown')
+local pcdd = LibStub('SomeoneElsesConfig-Dropdown')
 local kui = LibStub('Kui-1.0')
 
 local opt = CreateFrame("Frame", "KuiMountConfig", InterfaceOptionsFramePanelContainer)
