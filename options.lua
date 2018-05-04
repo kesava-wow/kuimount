@@ -537,6 +537,10 @@ function opt:PopulateWrapper()
             print('Not opening uninitialised UI during combat.')
             return
         end
+        if not KuiMountSaved then
+            print('KuiMount didn\'t load correctly.')
+            return
+        end
 
         opt:Populate()
     end

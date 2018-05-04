@@ -15,6 +15,7 @@ local previousMountUsed
 -- zones that aren't flyable despite being flagged as such
 -- (converted to name in ADDON_LOADED)
 -- XXX GetCurrentMapAreaID(), GetMapNameByID()
+-- TODO 80 zone ID's changed
 local nonFlyZones = {}
 local nonFlyZones_by_id = {
     737, -- the maelstrom
@@ -244,8 +245,8 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
 
         -- convert map IDs to names
         for _,id in ipairs(nonFlyZones_by_id) do
-            if tonumber(id) and GetMapNameByID(id) then
-                nonFlyZones[GetMapNameByID(id)] = true
+            if tonumber(id) and C_Map.GetMapInfo(id) then
+                nonFlyZones[C_Map.GetMapInfo(id).name] = true
             end
         end
 
