@@ -1,4 +1,4 @@
-local MAJOR, MINOR = 'Kui-1.0', 26
+local MAJOR, MINOR = 'Kui-1.0', 29
 local kui = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not kui then
@@ -13,18 +13,16 @@ kui.m = {
         -- borders
         shadow  = media .. 't\\shadowBorder',
         rounded = media .. 't\\solidRoundedBorder',
-
         -- textures
         solid       = media .. 't\\solid',
         innerShade  = media .. 't\\innerShade',
-
+        empty       = media .. 't\\empty',
         -- progress bars
         bar       = media .. 't\\bar',
         oldbar    = media .. 't\\bar-old',
         sbar      = media .. 't\\bar-small',
         brightbar = media .. 't\\bar-bright',
-
-        empty = media..'t\\empty',
+        stripebar = media .. 't\\stippled-bar',
     },
     f = {
         yanone   = media..'f\\yanone.ttf',
@@ -233,6 +231,15 @@ kui.Pluralise = function(word, value, with)
         return word .. (with and with or 's')
     end
 end
+do
+    local function _b(m,c)
+        return c + (1 - c) * m
+    end
+    kui.Brighten = function(m,r,g,b,a)
+        -- brighten (or darken) given colour
+        return _b(m,r),_b(m,g),_b(m,b),a
+    end
+end
 -- substr for utf8 characters ##################################################
 do
     local function chsize(char)
@@ -277,7 +284,7 @@ local function CreateDebugPopup()
     p:SetMultiLine(true)
     p:SetAutoFocus(true)
     p:SetFontObject(ChatFontNormal)
-    p:SetSize(250,600)
+    p:SetSize(450,300)
     p:Hide()
 
     p.orig_Hide = p.Hide
@@ -316,7 +323,7 @@ local function CreateDebugPopup()
 
     local s = CreateFrame('ScrollFrame','KuiDebugEditBoxScrollFrame',UIParent,'UIPanelScrollFrameTemplate')
     s:SetFrameStrata('DIALOG')
-    s:SetSize(250,600)
+    s:SetSize(450,300)
     s:SetPoint('CENTER')
     s:SetScrollChild(p)
     s:Hide()
