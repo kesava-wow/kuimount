@@ -1,6 +1,6 @@
 <Bindings>
-    <Binding header="KUIMOUNT_HEADER" name="CLICK KuiMountSecureButton:LeftButton">
+    <Binding name="CLICK KuiMountSecureButton:LeftButton" category="ADDONS" header="KUIMOUNT_HEADER">
     </Binding>
-    <Binding header="KUIMOUNT_HEADER" name="CLICK KuiMountSecureButton:UsePrevious">
+    <Binding name="CLICK KuiMountSecureButton:UsePrevious" category="ADDONS">
     </Binding>
 </Bindings>
