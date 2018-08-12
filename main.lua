@@ -73,7 +73,6 @@ function ns:GetMounts()
             if spell_name and spell_name ~= name then
                 -- also add spell names so the UI can resolve them correctly
                 collected_mounts_by_name[strlower(spell_name)] = mountID
-                print(spell_name)
             end
         end
     end
