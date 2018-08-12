@@ -148,9 +148,8 @@ local function Mount(button)
         local mountType =
             select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
 
-        if  usable and IsUsableSpell(spellid) and (
-            (list_id == ns.LIST_FLY and (mountType == 248 or mountType == 247)) or
-            list_id ~= ns.LIST_FLY)
+        if  usable and IsUsableSpell(spellid) and
+            (list_id ~= ns.LIST_FLY or (mountType == 248 or mountType == 247))
         then
             tinsert(usable_mounts,spellid)
 
