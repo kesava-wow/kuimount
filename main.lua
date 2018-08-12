@@ -309,4 +309,8 @@ ns.Mount = Mount
 BINDING_HEADER_KUIMOUNT_HEADER = 'Kui Mount'
 setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount")
 setglobal("BINDING_NAME_CLICK KuiMountSecureButton:UsePrevious", "Mount previous")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Ground", "Ground mount")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Flying", "Flying mount")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Aquatic", "Aquatic mount")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:WaterWalking", "Water walking mount")
 KuiMountMount = Mount
