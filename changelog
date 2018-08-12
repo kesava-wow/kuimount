@@ -1,2 +1,3 @@
-* fix xml binding warning
-* move bindings to "AddOns" category
+* add binding options to force ground, flying, aquatic and water walking mounts
+* (and as such, remove default modifier bindings)
+* fix support for mounts with different spell names from journal names
