@@ -534,11 +534,11 @@ end
 function opt:PopulateWrapper()
     if not opt.initialised then
         if InCombatLockdown() then
-            print('Not opening uninitialised UI during combat.')
+            print('Kui Mount: Not opening uninitialised UI during combat.')
             return
         end
         if not KuiMountSaved then
-            print('KuiMount didn\'t load correctly.')
+            print('Kui Mount: Didn\'t load correctly.')
             return
         end
 

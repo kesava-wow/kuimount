@@ -176,7 +176,7 @@ local function Mount(button)
     end
 
     if ns.debug then
-        print('KuiMount: compacted '..#usable_mounts..' to '..#usable_mounts_wl)
+        print('Kui Mount: compacted '..#usable_mounts..' to '..#usable_mounts_wl)
     end
 
     if #usable_mounts_wl > 0 then
@@ -198,7 +198,7 @@ local function Mount(button)
         SecureButton:SetAttribute('macrotext','/cast '..spell_name)
         previousMountUsed = spell_name
     else
-        UIErrorsFrame:AddMessage('Couldn\'t find a usable mount', 1,0,0)
+        UIErrorsFrame:AddMessage('Kui Mount: Couldn\'t find a usable mount', 1,0,0)
     end
 end
 
