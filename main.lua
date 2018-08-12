@@ -47,6 +47,14 @@ ns.LIST_FLY = 2
 ns.LIST_AQUATIC = 3
 ns.LIST_WATERWALK = 4
 
+-- button name > list ID index table
+ns.BUTTONS = {
+    ['Ground'] = ns.LIST_GROUND,
+    ['Flying'] = ns.LIST_FLY,
+    ['Aquatic'] = ns.LIST_AQUATIC,
+    ['WaterWalking'] = ns.LIST_WATERWALK,
+}
+
 -- mount collection functions ##################################################
 local collected_mounts_by_name = {}
 local known_spellid_mounts = {}
@@ -120,20 +128,20 @@ local function CanFly()
                IsSpellKnown(FLYING_ARTISAN) or
                IsSpellKnown(FLYING_EXPERT))
 end
-local function Mount()
+local function Mount(button)
     local active_set = ns:GetActiveSet()
+    local list_id = button and ns.BUTTONS[button]
 
-    local list
-    local useAquatic = IsSwimming() and IsAltKeyDown()
-    local useFlying = not useAquatic and not IsControlKeyDown() and CanFly()
-    local useWaterWalking = not useFlying and not useAquatic and
-                            IsShiftKeyDown()
+    if not list_id then
+        -- LeftButton or other :click, decide between ground and flying
+        list_id = CanFly() and ns.LIST_FLY or ns.LIST_GROUND
+    end
+    if not list_id then
+        print('KuiMount: Couldn\'t work out which list to use.')
+        return
+    end
 
-    -- now we know which list to use...
-    local list = (useAquatic and active_set[3]) or
-                 (useFlying and active_set[2]) or
-                 (useWaterWalking and active_set[4]) or
-                 active_set[1]
+    local list = active_set[list_id]
 
     -- make a list of all currently usable mounts
     -- (both in and out of the whitelist, so that we can fallback and ignore
@@ -146,8 +154,8 @@ local function Mount()
             select(5,C_MountJournal.GetMountInfoExtraByID(mount_id))
 
         if  usable and IsUsableSpell(spellid) and (
-            (useFlying and (mountType == 248 or mountType == 247)) or
-            not useFlying)
+            (list_id == ns.LIST_FLY and (mountType == 248 or mountType == 247)) or
+            list_id ~= ns.LIST_FLY)
         then
             tinsert(usable_mounts,spellid)
 
@@ -213,12 +221,12 @@ local function ButtonPreClick(self,button)
     end
 
     if button == 'UsePrevious' and previousMountUsed then
-        -- use previously selected mount (make no changes)
+        -- use previously selected mount (i.e. don't change the macro text)
         return
     else
         -- blank the macro so that we don't get 2 uierrors if no mount is usable
         SecureButton:SetAttribute('macrotext', '')
-        Mount()
+        Mount(button)
     end
 end
 
