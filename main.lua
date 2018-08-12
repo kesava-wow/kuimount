@@ -135,10 +135,6 @@ local function Mount(button)
         -- LeftButton or other :click, decide between ground and flying
         list_id = CanFly() and ns.LIST_FLY or ns.LIST_GROUND
     end
-    if not list_id then
-        print('KuiMount: Couldn\'t work out which list to use.')
-        return
-    end
 
     local list = active_set[list_id]
 
