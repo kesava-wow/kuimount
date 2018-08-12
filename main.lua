@@ -62,7 +62,6 @@ function ns:GetMounts()
     -- generate list of mounts by name => id
     -- used to convert names to IDs as there is no API for this
     wipe(collected_mounts_by_name)
-
     for k,i in ipairs(C_MountJournal.GetMountIDs()) do
         local name,_,_,_,_,_,_,_,_,_,isCollected,mountID =
               C_MountJournal.GetMountInfoByID(i)
