@@ -168,13 +168,13 @@ local function Mount()
         end
     end
 
+    if ns.debug then
+        print('KuiMount: compacted '..#usable_mounts..' to '..#usable_mounts_wl)
+    end
+
     if #usable_mounts_wl > 0 then
         -- use mount from whitelist
         usable_mounts = usable_mounts_wl
-    end
-
-    if ns.debug then
-        print('compacted '..#usable_mounts..' to '..#usable_mounts_wl)
     end
 
     -- select random usable mount
