@@ -81,8 +81,7 @@ function ns:GetMounts()
     end
 end
 function ns:GetMountID(name)
-    return collected_mounts_by_name[strlower(name)] or
-           nil
+    return collected_mounts_by_name[strlower(name)] or nil
 end
 
 -- saved variable functions ####################################################
