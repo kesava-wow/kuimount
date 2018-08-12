@@ -63,11 +63,18 @@ function ns:GetMounts()
     -- used to convert names to IDs as there is no API for this
     wipe(collected_mounts_by_name)
     for k,i in ipairs(C_MountJournal.GetMountIDs()) do
-        local name,_,_,_,_,_,_,_,_,_,isCollected,mountID =
+        local name,spellid,_,_,_,_,_,_,_,_,isCollected,mountID =
               C_MountJournal.GetMountInfoByID(i)
 
         if isCollected then
             collected_mounts_by_name[strlower(name)] = mountID
+
+            local spell_name = GetSpellInfo(spellid)
+            if spell_name and spell_name ~= name then
+                -- also add spell names so the UI can resolve them correctly
+                collected_mounts_by_name[strlower(spell_name)] = mountID
+                print(spell_name)
+            end
         end
     end
 
