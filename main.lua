@@ -310,10 +310,10 @@ ns.Mount = Mount
 
 -- globals for key binding support
 BINDING_HEADER_KUIMOUNT_HEADER = 'Kui Mount'
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount (ground / flying)")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Ground", "Mount (ground)")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Flying", "Mount (flying)")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Aquatic", "Mount (aquatic)")
+setglobal("BINDING_NAME_CLICK KuiMountSecureButton:WaterWalking", "Mount (water walking)")
 setglobal("BINDING_NAME_CLICK KuiMountSecureButton:UsePrevious", "Mount previous")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Ground", "Ground mount")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Flying", "Flying mount")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Aquatic", "Aquatic mount")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:WaterWalking", "Water walking mount")
 KuiMountMount = Mount
