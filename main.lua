@@ -8,24 +8,12 @@ local _,i,x
 local SecureButton
 local previousMountUsed
 
--- XXX add bindings for:
---   - use aquatic
---   - use water walking
-
 -- zones that aren't flyable despite being flagged as such
 -- (converted to name in ADDON_LOADED)
 -- XXX GetCurrentMapAreaID(), GetMapNameByID()
 -- TODO 80 zone ID's changed
 local nonFlyZones = {}
-local nonFlyZones_by_id = {
-    737, -- the maelstrom
-    1022, -- helheim
-    1035, -- skyhold
-    1044, -- the wandering isle
-    1050, -- dreadscar rift
-    1052, -- mardum, the shattered abyss
-    1078, -- niskara
-}
+local nonFlyZones_by_id = {}
 
 -- mounts which aren't companions (i.e. aren't in the pet journal interface)
 local spellIdMounts = {
