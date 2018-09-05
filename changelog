@@ -1,4 +1,1 @@
-* add binding options to force ground, flying, aquatic and water walking mounts
-* (and as such, remove default modifier bindings)
-* fix support for mounts with different spell names from journal names
-* the "Couldn't find a usable mount" error now specifies that it comes from this addon
+* remove out of date zone IDs
