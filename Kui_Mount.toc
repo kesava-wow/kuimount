@@ -1,4 +1,4 @@
-## Interface: 80000
+## Interface: 80100
 ## Author: Kesava
 ## Title: Kui |cff9966ffMount|r
 ## Notes: Mount randomly.
