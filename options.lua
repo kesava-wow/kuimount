@@ -43,7 +43,6 @@ local function SetValues()
     SetEditBoxToList(opt.edit_ground,set[1])
     SetEditBoxToList(opt.edit_flying,set[2])
     SetEditBoxToList(opt.edit_aquatic,set[3])
-    SetEditBoxToList(opt.edit_waterw,set[4])
 end
 local function ActivateSet(set_id)
     if not set_id or not KuiMountSaved.Sets[set_id] then return end
@@ -479,18 +478,13 @@ function opt:Populate()
     edit_flying.env_id = 2
     edit_flying.Scroll:SetPoint('TOPLEFT',edit_ground.Scroll,'TOPRIGHT',40,0)
 
-    local edit_aquatic = CreateEditBox('KuiMountAquatic',154,175)
+    local edit_aquatic = CreateEditBox('KuiMountAquatic',154,400)
     edit_aquatic.env_id = 3
     edit_aquatic.Scroll:SetPoint('TOPLEFT',edit_flying.Scroll,'TOPRIGHT',40,0)
-
-    local edit_waterw = CreateEditBox('KuiMountWaterWalking',154,175)
-    edit_waterw.env_id = 4
-    edit_waterw.Scroll:SetPoint('TOPLEFT',edit_aquatic.Scroll,'BOTTOMLEFT',0,-50)
 
     self.edit_ground = edit_ground
     self.edit_flying = edit_flying
     self.edit_aquatic = edit_aquatic
-    self.edit_waterw = edit_waterw
 
     -- titles ##################################################################
     local title_ground = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
@@ -504,10 +498,6 @@ function opt:Populate()
     local title_aquatic = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
     title_aquatic:SetPoint('BOTTOM',edit_aquatic.Backdrop,'TOP',0,5)
     title_aquatic:SetText('Aquatic')
-
-    local title_waterw = self:CreateFontString(nil,'ARTWORK','GameFontNormalLarge')
-    title_waterw:SetPoint('BOTTOM',edit_waterw.Backdrop,'TOP',0,5)
-    title_waterw:SetText('Water Walking')
 
     -- help text ###############################################################
     local help_text = self:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')

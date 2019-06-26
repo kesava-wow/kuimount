@@ -32,14 +32,12 @@ local FLYING_MASTER = 90265
 ns.LIST_GROUND = 1
 ns.LIST_FLY = 2
 ns.LIST_AQUATIC = 3
-ns.LIST_WATERWALK = 4
 
 -- button name > list ID index table
 ns.BUTTONS = {
     ['Ground'] = ns.LIST_GROUND,
     ['Flying'] = ns.LIST_FLY,
     ['Aquatic'] = ns.LIST_AQUATIC,
-    ['WaterWalking'] = ns.LIST_WATERWALK,
 }
 
 -- mount collection functions ##################################################
@@ -95,10 +93,6 @@ local function DefaultSet()
             [223018] = true, -- fathom dweller
             [228919] = true, -- darkwater skate
             [214791] = true, -- brinedeep bottom-feeder
-        },
-        {   -- water walking
-            [118089] = true, -- azure water strider
-            [127271] = true, -- crimson water strider
         },
     }
 end
@@ -309,7 +303,6 @@ do
     setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Ground", "Mount (ground)")
     setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Flying", "Mount (flying)")
     setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Aquatic", "Mount (aquatic)")
-    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:WaterWalking", "Mount (water walking)")
     setglobal("BINDING_NAME_CLICK KuiMountSecureButton:UsePrevious", "Mount previous")
     _G['KuiMountMount'] = Mount
 end
