@@ -1,4 +1,5 @@
-* remove water walking mount set
+* fix doesn't cancel druid flying form
 * fix journal interface hook for 8.2
+* remove water walking mount set
 * bump toc
 * update external libraries
