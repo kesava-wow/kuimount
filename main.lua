@@ -9,8 +9,6 @@ local previousMountUsed
 
 -- zones that aren't flyable despite being flagged as such
 -- (converted to name in ADDON_LOADED)
--- XXX GetCurrentMapAreaID(), GetMapNameByID()
--- TODO 80 zone ID's changed
 local nonFlyZones = {}
 local nonFlyZones_by_id = {}
 
