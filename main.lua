@@ -199,6 +199,12 @@ local function ButtonPreClick(self,button)
         return
     end
 
+    if GetShapeshiftForm() and IsFlying() then
+        -- cancel flying shapeshifts
+        CancelShapeshiftForm()
+        return
+    end
+
     if button == 'UsePrevious' and previousMountUsed then
         -- use previously selected mount (i.e. don't change the macro text)
         return
