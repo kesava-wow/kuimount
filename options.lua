@@ -395,6 +395,8 @@ do
         MountJournalItemUpdateButtons(self:GetParent())
     end
     local function MountJournalCreateListItemCheckboxes(item)
+        if not item then return end
+
         local btn_gnd = CreateFrame('CheckButton',nil,item,'OptionsBaseCheckButtonTemplate')
         btn_gnd.env = ns.LIST_GROUND
         btn_gnd:SetPoint('TOPRIGHT',-1,-1)
