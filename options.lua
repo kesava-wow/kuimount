@@ -1,7 +1,8 @@
+-- luacheck:globals MountJournal
 -- Kui Mount
 -- By Kesava at curse.com
 -- All rights reserved
-local addon,ns = ...
+local _,ns = ...
 local category = 'Kui |cff9966ffMount|r'
 local pcdd = LibStub('SomeoneElsesConfig-Dropdown')
 local kui = LibStub('Kui-1.0')
@@ -17,12 +18,11 @@ local S_CHECKBOX_ON = 856
 local S_CHECKBOX_OFF = 857
 local S_MENU_OPEN = 850
 local S_MENU_CLOSE = 851
-local PlaySound = PlaySoundKitID or PlaySound
 
 -- element functions ###########################################################
 local function SetEditBoxToList(editbox,list)
     local text
-    for t,_ in pairs(list) do
+    for t in pairs(list) do
         t = GetSpellInfo(t) or t
         text = text and text..t..'\n' or t..'\n'
     end
@@ -62,7 +62,7 @@ local function OnEditFocusLost(self)
     local set = ns:GetActiveSet()
     local list = {}
 
-    for k,name in ipairs(new_list) do
+    for _,name in ipairs(new_list) do
         if name and name ~= '' then
             if tonumber(name) then
                 -- add to list as given spell id
@@ -352,7 +352,7 @@ do
             MountJournalItemUpdateButtons(_G['MountJournalListScrollFrameButton'..i])
         end
     end
-    local function MountJournalButtonOnClick(self,button)
+    local function MountJournalButtonOnClick(self)
         if self:GetChecked() then
             PlaySound(S_CHECKBOX_ON)
         else
@@ -422,6 +422,7 @@ do
     end
 
     function ns:HookMountJournal()
+        --luacheck:globals MountJournalListScrollFrame MountJournalListScrollFrameButton1
         assert(MountJournal)
         assert(MountJournalListScrollFrameButton1)
 
@@ -556,15 +557,15 @@ opt:SetScript('OnShow',function(self)
 end)
 
 --------------------------------------------------------------- Slash command --
-SLASH_KUIMOUNT1 = '/kuimount'
-SLASH_KUIMOUNT2 = '/mount'
+_G['SLASH_KUIMOUNT1'] = '/kuimount'
+_G['SLASH_KUIMOUNT2'] = '/mount'
 
 local function DumpOldSet(name,set)
     if not set then return end
     local m = '|cffffff88'..name..'|r|n'
 
     local i = 0
-    for k,v in pairs(set) do
+    for k in pairs(set) do
         i = i + 1
         m = m..k..'|n'
     end

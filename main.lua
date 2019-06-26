@@ -2,9 +2,8 @@
 -- By Kesava at curse.com
 -- All rights reserved
 local addon, ns = ...
-local select, strfind, strlower, tonumber, tinsert
-    = select, strfind, strlower, tonumber, tinsert
-local _,i,x
+local select, strlower, tonumber, tinsert
+    = select, strlower, tonumber, tinsert
 local SecureButton
 local previousMountUsed
 
@@ -22,7 +21,7 @@ local spellIdMounts = {
     87840, -- running wild
 }
 
-ns.f = CreateFrame('Frame', KuiMountFrame)
+ns.f = CreateFrame('Frame')
 
 -- flying skill spell IDs
 local FLYING_EXPERT = 34090
@@ -50,7 +49,7 @@ function ns:GetMounts()
     -- generate list of mounts by name => id
     -- used to convert names to IDs as there is no API for this
     wipe(collected_mounts_by_name)
-    for k,i in ipairs(C_MountJournal.GetMountIDs()) do
+    for _,i in ipairs(C_MountJournal.GetMountIDs()) do
         local name,spellid,_,_,_,_,_,_,_,_,isCollected,mountID =
               C_MountJournal.GetMountInfoByID(i)
 
@@ -186,6 +185,7 @@ local function Mount(button)
         SecureButton:SetAttribute('macrotext','/cast '..spell_name)
         previousMountUsed = spell_name
     else
+        --luacheck:globals UIErrorsFrame
         UIErrorsFrame:AddMessage('Kui Mount: Couldn\'t find a usable mount', 1,0,0)
     end
 end
@@ -233,6 +233,7 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             return
         elseif ... ~= addon then return end
 
+        -- luacheck:globals MountJournal
         if MountJournal then
             -- Blizzard_Collections is already loaded
             ns:HookMountJournal()
@@ -300,12 +301,15 @@ ns.f:RegisterEvent('PLAYER_ENTERING_WORLD')
 
 ns.Mount = Mount
 
--- globals for key binding support
-BINDING_HEADER_KUIMOUNT_HEADER = 'Kui Mount'
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount (ground / flying)")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Ground", "Mount (ground)")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Flying", "Mount (flying)")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Aquatic", "Mount (aquatic)")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:WaterWalking", "Mount (water walking)")
-setglobal("BINDING_NAME_CLICK KuiMountSecureButton:UsePrevious", "Mount previous")
-KuiMountMount = Mount
+do
+    -- globals for key binding support
+    -- luacheck:globals setglobal
+    _G['BINDING_HEADER_KUIMOUNT_HEADER'] = 'Kui Mount'
+    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:LeftButton", "Mount (ground / flying)")
+    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Ground", "Mount (ground)")
+    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Flying", "Mount (flying)")
+    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:Aquatic", "Mount (aquatic)")
+    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:WaterWalking", "Mount (water walking)")
+    setglobal("BINDING_NAME_CLICK KuiMountSecureButton:UsePrevious", "Mount previous")
+    _G['KuiMountMount'] = Mount
+end
