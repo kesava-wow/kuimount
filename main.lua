@@ -8,9 +8,7 @@ local SecureButton
 local previousMountUsed
 
 -- zones that aren't flyable despite being flagged as such
--- (converted to name in ADDON_LOADED)
-local nonFlyZones = {}
-local nonFlyZones_by_id = {}
+local NON_FLY_ZONES = {}
 
 -- mounts which aren't companions (i.e. aren't in the pet journal interface)
 local spellIdMounts = {
@@ -235,13 +233,6 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
         if MountJournal then
             -- Blizzard_Collections is already loaded
             ns:HookMountJournal()
-        end
-
-        -- convert map IDs to names
-        for _,id in ipairs(nonFlyZones_by_id) do
-            if tonumber(id) and C_Map.GetMapInfo(id) then
-                nonFlyZones[C_Map.GetMapInfo(id).name] = true
-            end
         end
 
         SecureButton = CreateFrame("Button", 'KuiMountSecureButton', UIParent, "SecureActionButtonTemplate, ActionButtonTemplate")
