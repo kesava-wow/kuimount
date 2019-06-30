@@ -19,6 +19,13 @@ local spellIdMounts = {
 
 ns.f = CreateFrame('Frame')
 
+local PATHFINDER_ACHIEVEMENT_ID = 13250
+local PATHFINDER_EARNED
+-- zones flagged as flyable despite lacking the achievement
+local PATHFINDER_ZONES = {
+    [1355] = true, -- nazjatar
+}
+
 -- flying skill spell IDs
 local FLYING_EXPERT = 34090
 local FLYING_ARTISAN = 34091
@@ -103,8 +110,22 @@ function ns:IsInActiveList(list_id,key)
 end
 
 -- mounting functions ##########################################################
+local function CheckPathfinder()
+    PATHFINDER_EARNED = select(4,GetAchievementInfo(PATHFINDER_ACHIEVEMENT_ID))
+end
 local function CanFly()
-    return IsFlyableArea() and not nonFlyZones[GetZoneText()] and (
+    local best_zone_id = C_Map.GetBestMapForUnit('player')
+    if ns.debug then
+        print('Kui Mount: best zone',best_zone_id,'pathfinder',PATHFINDER_EARNED)
+    end
+    if  best_zone_id and
+       (NON_FLY_ZONES[best_zone_id] or
+       (PATHFINDER_ZONES[best_zone_id] and not PATHFINDER_EARNED))
+    then
+        -- can't fly in a misflagged/pathfinder zone
+        return
+    end
+    return IsFlyableArea() and (
                IsSpellKnown(FLYING_MASTER) or
                IsSpellKnown(FLYING_ARTISAN) or
                IsSpellKnown(FLYING_EXPERT))
@@ -219,6 +240,7 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
     if event == 'PLAYER_ENTERING_WORLD' or event == 'COMPANION_LEARNED' then
         -- update mount list upon learning new mounts or zoning
         ns:GetMounts()
+        CheckPathfinder()
     elseif event == 'PLAYER_LOGIN' then
         if RESET_WARN then
             print('|cff9966ffKui Mount|r has been updated and reset. Your previous sets have been backed up and can be viewed by running:|n/mount dump-old')
@@ -281,12 +303,17 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
         then
             KuiMountCharacter.ActiveSet = 'default'
         end
+    elseif event == 'ACHIEVEMENT_EARNED' then
+        if ... == PATHFINDER_ACHIEVEMENT_ID then
+            CheckPathfinder()
+        end
     end
 end)
 ns.f:RegisterEvent('ADDON_LOADED')
 ns.f:RegisterEvent('PLAYER_LOGIN')
 ns.f:RegisterEvent('COMPANION_LEARNED')
 ns.f:RegisterEvent('PLAYER_ENTERING_WORLD')
+ns.f:RegisterEvent('ACHIEVEMENT_EARNED')
 
 ns.Mount = Mount
 
