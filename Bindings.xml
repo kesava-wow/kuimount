@@ -3,6 +3,5 @@
     <Binding name="CLICK KuiMountSecureButton:Ground" category="ADDONS"></Binding>
     <Binding name="CLICK KuiMountSecureButton:Flying" category="ADDONS"></Binding>
     <Binding name="CLICK KuiMountSecureButton:Aquatic" category="ADDONS"></Binding>
-    <Binding name="CLICK KuiMountSecureButton:WaterWalking" category="ADDONS"></Binding>
     <Binding name="CLICK KuiMountSecureButton:UsePrevious" category="ADDONS"></Binding>
 </Bindings>
