@@ -2,8 +2,8 @@
 -- By Kesava at curse.com
 -- All rights reserved
 local addon, ns = ...
-local select, strlower, tonumber, tinsert
-    = select, strlower, tonumber, tinsert
+local select, strlower, tinsert
+    = select, strlower, tinsert
 local SecureButton
 local previousMountUsed
 
