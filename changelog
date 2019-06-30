@@ -1,5 +1,4 @@
-* fix doesn't cancel druid flying form
-* fix journal interface hook for 8.2
-* remove water walking mount set
-* bump toc
-* update external libraries
+BETA NOTES
+
+* don't use flying mounts in nazjatar without pathfinder part two
+* correctly remove WaterWalking bind from keybind interface
