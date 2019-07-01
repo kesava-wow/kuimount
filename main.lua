@@ -110,8 +110,15 @@ function ns:IsInActiveList(list_id,key)
 end
 
 -- mounting functions ##########################################################
-local function CheckPathfinder()
-    PATHFINDER_EARNED = select(4,GetAchievementInfo(PATHFINDER_ACHIEVEMENT_ID))
+local function CheckPathfinder(earned_id)
+    if PATHFINDER_EARNED then return end
+    if earned_id then
+        -- check earned achievement, via ACHIEVEMENT_EARNED
+        PATHFINDER_EARNED = earned_id == PATHFINDER_ACHIEVEMENT_ID
+    else
+        -- update via info
+        PATHFINDER_EARNED = select(4,GetAchievementInfo(PATHFINDER_ACHIEVEMENT_ID))
+    end
 end
 local function CanFly()
     local best_zone_id = C_Map.GetBestMapForUnit('player')
@@ -304,9 +311,7 @@ ns.f:SetScript('OnEvent', function(self, event, ...)
             KuiMountCharacter.ActiveSet = 'default'
         end
     elseif event == 'ACHIEVEMENT_EARNED' then
-        if ... == PATHFINDER_ACHIEVEMENT_ID then
-            CheckPathfinder()
-        end
+        CheckPathfinder(...)
     end
 end)
 ns.f:RegisterEvent('ADDON_LOADED')
