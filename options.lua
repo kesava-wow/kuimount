@@ -114,7 +114,7 @@ local function CreateEditBox(name, width, height, parent)
         self:GetScrollChild():SetFocus()
     end)
 
-    local bg = CreateFrame('Frame', nil, parent or opt)
+    local bg = CreateFrame('Frame', nil, parent or opt, BackdropTemplateMixin and 'BackdropTemplate' or nil)
     bg:SetBackdrop({
         bgFile = 'Interface\\ChatFrame\\ChatFrameBackground',
         edgeFile = 'Interface\\Tooltips\\UI-Tooltip-border',
@@ -162,7 +162,7 @@ do
         SetValues()
     end
     function CreateNewSetPopUp(parent)
-        local popup = CreateFrame('Frame',nil,parent)
+        local popup = CreateFrame('Frame',nil,parent,BackdropTemplateMixin and 'BackdropTemplate' or nil)
         popup:SetBackdrop({
             bgFile='interface/dialogframe/ui-dialogbox-background',
             edgeFile='interface/dialogframe/ui-dialogbox-border',
